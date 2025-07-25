@@ -4,6 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Car Auction Analyzer</title>
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Car Auction Analyzer">
+    <meta name="theme-color" content="#0066cc">
+    <meta name="application-name" content="Car Auction Analyzer">
+    <meta name="msapplication-TileColor" content="#0066cc">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="orientation" content="portrait">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="icons/apple-icon-180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/apple-icon-152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-icon-180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="icons/apple-icon-167.png">
+    
+    <!-- iPhone X Splash Screen -->
+    <link rel="apple-touch-startup-image" href="icons/apple-splash-2048-2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="icons/apple-splash-1668-2388.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="icons/apple-splash-1668-2224.png" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="icons/apple-splash-1536-2048.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="icons/apple-splash-1242-2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="icons/apple-splash-1125-2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="icons/apple-splash-828-1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="icons/apple-splash-750-1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="icons/apple-splash-640-1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAABDNJREFUWEfFl11sFFUUx//nzuxud7vd7bbbQlugLYWWj9JKQbBpJCCID2gIGk18wETig4+YmBiMiS8++WBi4osPPqgPhGhMTAgSFR+QD6MEBQFKS0uhtBTaUtrSbbvbnZk7Zu7ObHe3s9NtC+GmTTZz7z33d/7nnHvPXcIcP7+8u7LcIBQBZBHAiwkgCYBnAKQAJADEAfSB0EuEXhD1Gg7HwLbXLw3OZVqa7eDNnRUVRQZ2gLEDwCoABXOJDWAYwDEQDqZNc//2N/tjs41lCrB7V6XPNLEHQC2AwGwTZPl9BNBgGPRhXd3lRKZYUwLs3lXlM03sAbAJgGM2yafxTQI4bBj0YV3d5XiyWEkBdu+q9Jo8L3pOCZ8QTdyJfbX1l2OJMBMCvPVOlYcM7CWiTXM1uSxjHzMMfFBXfyU6Oc6EALt2VXkNxj4i2jjLpDPxJgAcMQzaWVd/JTIeYFwAYXLDwD4ibJjNzLPwPWoA77+2/srI2FhjArz5dpXHNLCPiNbPYsLZuJ4wDLxfV38lLJ1HARTnG8ZeIqybzcRz8D1mGNhZV38lJAHe2F3lNhnvE9HaOUw6F9ejBmNnXf2VYYcweWzm+QqPALhmHl9JRCsBrCTgRQAVAIrnEPcGgOccDBwgojVzCCRdxMl/A3ABQDeALgDnGfgbQHw2cYno7+deXLHc4TBwkIhWzyaI8P0HwI8AjgP4FYBl+VvfAQAvAHgJwHoARdONS0SnHYaBg0S0arpBhF8UwI8ADgFoA6DM6gTgBfAygLcArE0XhIhOOQzGASJ6cbpBhN8QgO8BHATQnmHWQrFSAWwA8A6A51MFIaI/HIZpHiCildMJInxCAL4D8BWAa1nMmgvAcwDeA/BqqiBEdMphmuZ+Ilox1SDCPgrgWwBfA+jIYdZsAZ4B8D6ArckgRNTqME1zHxEtn0oQYRsB8A2ArwD8m8esuQAsA/ABgO2JIETULgF2ElHVpCDCJgLgawD7AfyXx6y5ACwF8CGAHYkgRNTpMAzsIaLKfEGETRjAVwC+BHAzj1lzAagE8BGAnRJANLscJuNdIlqWL4iwuQPgCwD7ANzKY9ZcACoAfAxglwS47jAZ7xDR0nxBhM1tAJ8D+AzAnTxmzQVgMYBPAOyWADcdJuNtIlqSL4iwGQHwGYC9AO7mMWsuAOUAPgXwpgS47TAZbxHR4nxBhM0wgE8B7AEQymPWXACCAD4DsEcChB0m4w0iWpQviLAZAvAJgI8BDOQxay4AJQA+B/C2BBh1mIzXiWhBviDCZhDAHgAfARjMY9ZcAIoB7AWwRwLEHCbjNSIK5gvCwACAjwDsBhDOY9ZcAAIAvgDwrgSIO0zGq0RUmitAIp8HRO8nOt9IHrPmAuAD8KUEkK+jDsZYTURFuQIk8rkP4EMAdwHE85g1FwAvgK8kwKjDYLxCRIX5giTy+T6A9/KYM1+aLwHslQBDDsZYRUR+BRCd7z0Aw3nMmguAG8DXEuD/AAAA//9kXQfTJlbLOgAAAABJRU5ErkJggg==">
     <style>
         /* Reset and base styles */
@@ -77,7 +107,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transform: scaleX(-1);
         }
         
         .camera-overlay {
@@ -598,6 +627,60 @@
             vertical-align: middle;
         }
         
+        /* PWA Install Prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            padding: 16px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .install-prompt.show {
+            transform: translateY(0);
+        }
+        
+        .install-prompt-text {
+            flex: 1;
+            margin-right: 16px;
+        }
+        
+        .install-prompt-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .install-prompt-subtitle {
+            font-size: 14px;
+            color: #8e8e93;
+        }
+        
+        .install-button {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            border: none;
+            white-space: nowrap;
+        }
+        
+        .dismiss-install {
+            background: none;
+            border: none;
+            color: #8e8e93;
+            padding: 8px;
+            margin-left: 8px;
+        }
+        
         /* Responsive adjustments */
         @media (min-height: 700px) {
             .gallery-container {
@@ -862,6 +945,16 @@
                 </div>
             </div>
         </div>
+        
+        <!-- PWA Install Prompt -->
+        <div class="install-prompt" id="install-prompt">
+            <div class="install-prompt-text">
+                <div class="install-prompt-title">Add to Home Screen</div>
+                <div class="install-prompt-subtitle">Install Car Auction Analyzer for quick access</div>
+            </div>
+            <button class="install-button" id="install-button">Install</button>
+            <button class="dismiss-install" id="dismiss-install">&times;</button>
+        </div>
     </div>
     
     <script>
@@ -891,6 +984,9 @@
                 this.resultsModal = document.getElementById('results-modal');
                 this.closeModal = document.getElementById('close-modal');
                 this.closeResults = document.getElementById('close-results');
+                this.installPrompt = document.getElementById('install-prompt');
+                this.installButton = document.getElementById('install-button');
+                this.dismissInstall = document.getElementById('dismiss-install');
                 
                 // State
                 this.stream = null;
@@ -899,6 +995,7 @@
                 this.cameraFacingMode = 'environment'; // 'environment' for back camera, 'user' for front
                 this.flashMode = 'off';
                 this.isUploading = false;
+                this.deferredPrompt = null;
                 
                 // Initialize
                 this.initializeApp();
@@ -909,6 +1006,12 @@
                 // Set up event listeners
                 this.setupEventListeners();
                 
+                // Register service worker
+                this.registerServiceWorker();
+                
+                // Setup PWA install prompt
+                this.setupInstallPrompt();
+                
                 // Start camera
                 await this.startCamera();
                 
@@ -916,6 +1019,68 @@
                 setTimeout(() => {
                     this.loadingScreen.style.display = 'none';
                 }, 1500);
+            }
+            
+            // Register service worker for PWA
+            registerServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                    window.addEventListener('load', () => {
+                        navigator.serviceWorker.register('/sw.js').then(registration => {
+                            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                        }).catch(error => {
+                            console.log('ServiceWorker registration failed: ', error);
+                        });
+                    });
+                }
+            }
+            
+            // Setup PWA install prompt
+            setupInstallPrompt() {
+                // Store the install prompt event
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    // Prevent Chrome 67 and earlier from automatically showing the prompt
+                    e.preventDefault();
+                    // Store the event so it can be triggered later
+                    this.deferredPrompt = e;
+                    
+                    // Show the install prompt
+                    this.installPrompt.classList.add('show');
+                });
+                
+                // Add click event for install button
+                this.installButton.addEventListener('click', () => {
+                    // Hide the prompt
+                    this.installPrompt.classList.remove('show');
+                    
+                    // Show the prompt
+                    if (this.deferredPrompt) {
+                        this.deferredPrompt.prompt();
+                        
+                        // Wait for the user to respond to the prompt
+                        this.deferredPrompt.userChoice.then((choiceResult) => {
+                            if (choiceResult.outcome === 'accepted') {
+                                console.log('User accepted the install prompt');
+                            } else {
+                                console.log('User dismissed the install prompt');
+                            }
+                            this.deferredPrompt = null;
+                        });
+                    }
+                });
+                
+                // Add click event for dismiss button
+                this.dismissInstall.addEventListener('click', () => {
+                    this.installPrompt.classList.remove('show');
+                });
+                
+                // Hide install prompt by default
+                this.installPrompt.classList.remove('show');
+                
+                // Check if app is installed
+                window.addEventListener('appinstalled', (evt) => {
+                    console.log('App was installed');
+                    this.installPrompt.classList.remove('show');
+                });
             }
             
             // Set up event listeners

@@ -1,0 +1,115 @@
+{
+  "name": "Car Auction Analyzer",
+  "short_name": "Car Auction",
+  "description": "Analyze vehicle photos to detect damage, estimate repair costs, and calculate ROI for car auctions",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0066cc",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/screen1.jpg",
+      "sizes": "1170x2532",
+      "type": "image/jpeg",
+      "platform": "narrow",
+      "label": "Car Auction Analyzer Camera View"
+    },
+    {
+      "src": "screenshots/screen2.jpg",
+      "sizes": "1170x2532",
+      "type": "image/jpeg",
+      "platform": "narrow",
+      "label": "Vehicle Analysis Results"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Take Photos",
+      "short_name": "Camera",
+      "description": "Open camera to take vehicle photos",
+      "url": "/?mode=camera",
+      "icons": [{ "src": "icons/camera-icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "View Analysis",
+      "short_name": "Analysis",
+      "description": "View previous vehicle analyses",
+      "url": "/?mode=results",
+      "icons": [{ "src": "icons/analysis-icon-192x192.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "categories": ["business", "finance", "productivity", "utilities"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "iarc_rating_id": "",
+  "share_target": {
+    "action": "/share-target/",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "photos",
+          "accept": ["image/*"]
+        }
+      ]
+    }
+  }
+}

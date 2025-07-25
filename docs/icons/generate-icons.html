@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Auction Analyzer - Icon Generator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f2f2f7;
+            color: #333;
+        }
+        h1 {
+            color: #0066cc;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background-color: white;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .color-pickers {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .color-picker {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0055aa;
+        }
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .icon-preview {
+            margin-bottom: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        .icon-size {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .icon-name {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .download-link {
+            background-color: #34c759;
+            color: white;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-align: center;
+        }
+        .instructions {
+            background-color: #f0f7ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .download-all {
+            margin-top: 20px;
+            background-color: #5856d6;
+        }
+    </style>
+</head>
+<body>
+    <h1>Car Auction Analyzer Icon Generator</h1>
+    
+    <div class="container">
+        <div class="instructions">
+            <p>This tool generates all the required icons for the Car Auction Analyzer PWA. Customize the colors below, then click "Generate Icons" to create all sizes.</p>
+            <p>After generating, you can download individual icons or use the "Download All Icons" button to get a ZIP file.</p>
+        </div>
+        
+        <div class="preview-container">
+            <h2>Icon Preview</h2>
+            <canvas id="previewCanvas" width="512" height="512"></canvas>
+            
+            <div class="color-pickers">
+                <div class="color-picker">
+                    <label for="primaryColor">Primary Color</label>
+                    <input type="color" id="primaryColor" value="#0066cc">
+                </div>
+                <div class="color-picker">
+                    <label for="secondaryColor">Secondary Color</label>
+                    <input type="color" id="secondaryColor" value="#34c759">
+                </div>
+                <div class="color-picker">
+                    <label for="accentColor">Accent Color</label>
+                    <input type="color" id="accentColor" value="#ff3b30">
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button id="generateBtn">Generate All Icons</button>
+            </div>
+        </div>
+        
+        <div id="iconGrid" class="icon-grid">
+            <!-- Icons will be added here dynamically -->
+        </div>
+        
+        <button id="downloadAllBtn" class="download-all">Download All Icons as ZIP</button>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Canvas and context
+            const canvas = document.getElementById('previewCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Elements
+            const primaryColorInput = document.getElementById('primaryColor');
+            const secondaryColorInput = document.getElementById('secondaryColor');
+            const accentColorInput = document.getElementById('accentColor');
+            const generateBtn = document.getElementById('generateBtn');
+            const downloadAllBtn = document.getElementById('downloadAllBtn');
+            const iconGrid = document.getElementById('iconGrid');
+            
+            // Icon sizes needed for PWA
+            const iconSizes = [
+                { size: 72, name: 'icon-72x72.png' },
+                { size: 96, name: 'icon-96x96.png' },
+                { size: 128, name: 'icon-128x128.png' },
+                { size: 144, name: 'icon-144x144.png' },
+                { size: 152, name: 'icon-152x152.png' },
+                { size: 192, name: 'icon-192x192.png' },
+                { size: 384, name: 'icon-384x384.png' },
+                { size: 512, name: 'icon-512x512.png' },
+                // Apple specific icons
+                { size: 152, name: 'apple-icon-152.png' },
+                { size: 167, name: 'apple-icon-167.png' },
+                { size: 180, name: 'apple-icon-180.png' }
+            ];
+            
+            // Initial draw
+            drawIcon();
+            
+            // Event listeners
+            primaryColorInput.addEventListener('input', drawIcon);
+            secondaryColorInput.addEventListener('input', drawIcon);
+            accentColorInput.addEventListener('input', drawIcon);
+            generateBtn.addEventListener('click', generateAllIcons);
+            downloadAllBtn.addEventListener('click', downloadAllIcons);
+            
+            // Function to draw the car auction analyzer icon
+            function drawIcon() {
+                const size = canvas.width;
+                const primaryColor = primaryColorInput.value;
+                const secondaryColor = secondaryColorInput.value;
+                const accentColor = accentColorInput.value;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, size, size);
+                
+                // Draw background circle
+                ctx.beginPath();
+                ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+                ctx.fillStyle = primaryColor;
+                ctx.fill();
+                
+                // Draw inner circle
+                ctx.beginPath();
+                ctx.arc(size/2, size/2, size/2.2, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+                
+                // Draw car silhouette
+                drawCar(ctx, size, secondaryColor);
+                
+                // Draw magnifying glass
+                drawMagnifyingGlass(ctx, size, accentColor);
+                
+                // Draw dollar sign to represent auction/value
+                drawDollarSign(ctx, size, primaryColor);
+            }
+            
+            // Function to draw the car
+            function drawCar(ctx, size, color) {
+                const scale = size / 512; // Scale factor based on 512px original design
+                
+                ctx.save();
+                ctx.translate(size * 0.5, size * 0.55); // Center the car
+                ctx.scale(scale, scale);
+                
+                ctx.beginPath();
+                
+                // Car body - simplified sedan shape
+                ctx.moveTo(-180, 0); // Start at left bottom
+                ctx.lineTo(-180, -30); // Left side up
+                ctx.lineTo(-150, -60); // Front windshield
+                ctx.lineTo(-80, -70); // Roof front
+                ctx.lineTo(30, -70); // Roof
+                ctx.lineTo(100, -50); // Rear windshield
+                ctx.lineTo(150, -30); // Trunk
+                ctx.lineTo(180, 0); // Right bottom
+                ctx.closePath();
+                
+                // Wheels
+                ctx.moveTo(-120, 0);
+                ctx.arc(-120, 0, 40, 0, Math.PI * 2);
+                ctx.moveTo(120, 0);
+                ctx.arc(120, 0, 40, 0, Math.PI * 2);
+                
+                // Fill car shape
+                ctx.fillStyle = color;
+                ctx.fill();
+                
+                // Draw windows
+                ctx.beginPath();
+                ctx.moveTo(-140, -35);
+                ctx.lineTo(-120, -60);
+                ctx.lineTo(-80, -65);
+                ctx.lineTo(-80, -35);
+                ctx.closePath();
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.moveTo(-70, -65);
+                ctx.lineTo(20, -65);
+                ctx.lineTo(20, -35);
+                ctx.lineTo(-70, -35);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.moveTo(30, -65);
+                ctx.lineTo(90, -50);
+                ctx.lineTo(90, -35);
+                ctx.lineTo(30, -35);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.restore();
+            }
+            
+            // Function to draw magnifying glass
+            function drawMagnifyingGlass(ctx, size, color) {
+                const scale = size / 512;
+                
+                ctx.save();
+                ctx.translate(size * 0.7, size * 0.3);
+                ctx.scale(scale, scale);
+                
+                // Glass circle
+                ctx.beginPath();
+                ctx.arc(0, 0, 70, 0, Math.PI * 2);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 15;
+                ctx.stroke();
+                
+                // Glass handle
+                ctx.beginPath();
+                ctx.moveTo(50, 50);
+                ctx.lineTo(100, 100);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 15;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+                
+                ctx.restore();
+            }
+            
+            // Function to draw dollar sign
+            function drawDollarSign(ctx, size, color) {
+                const scale = size / 512;
+                
+                ctx.save();
+                ctx.translate(size * 0.3, size * 0.35);
+                ctx.scale(scale, scale);
+                
+                ctx.font = 'bold 120px Arial';
+                ctx.fillStyle = color;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('$', 0, 0);
+                
+                ctx.restore();
+            }
+            
+            // Function to generate icons of all sizes
+            function generateAllIcons() {
+                // Clear previous icons
+                iconGrid.innerHTML = '';
+                
+                // Generate each icon size
+                iconSizes.forEach(iconInfo => {
+                    const { size, name } = iconInfo;
+                    
+                    // Create temporary canvas for this size
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = size;
+                    tempCanvas.height = size;
+                    const tempCtx = tempCanvas.getContext('2d');
+                    
+                    // Draw icon at this size
+                    drawIconAtSize(tempCtx, size);
+                    
+                    // Create icon preview element
+                    const iconItem = document.createElement('div');
+                    iconItem.className = 'icon-item';
+                    
+                    // Add preview image
+                    const img = document.createElement('img');
+                    img.src = tempCanvas.toDataURL('image/png');
+                    img.width = Math.min(100, size);
+                    img.height = Math.min(100, size);
+                    img.className = 'icon-preview';
+                    iconItem.appendChild(img);
+                    
+                    // Add size label
+                    const sizeLabel = document.createElement('div');
+                    sizeLabel.className = 'icon-size';
+                    sizeLabel.textContent = `${size} × ${size}`;
+                    iconItem.appendChild(sizeLabel);
+                    
+                    // Add filename
+                    const nameLabel = document.createElement('div');
+                    nameLabel.className = 'icon-name';
+                    nameLabel.textContent = name;
+                    iconItem.appendChild(nameLabel);
+                    
+                    // Add download link
+                    const downloadLink = document.createElement('a');
+                    downloadLink.className = 'download-link';
+                    downloadLink.textContent = 'Download';
+                    downloadLink.href = tempCanvas.toDataURL('image/png');
+                    downloadLink.download = name;
+                    iconItem.appendChild(downloadLink);
+                    
+                    // Add to grid
+                    iconGrid.appendChild(iconItem);
+                });
+                
+                // Show download all button
+                downloadAllBtn.style.display = 'block';
+            }
+            
+            // Function to draw icon at a specific size
+            function drawIconAtSize(ctx, size) {
+                const primaryColor = primaryColorInput.value;
+                const secondaryColor = secondaryColorInput.value;
+                const accentColor = accentColorInput.value;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, size, size);
+                
+                // Draw background circle
+                ctx.beginPath();
+                ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+                ctx.fillStyle = primaryColor;
+                ctx.fill();
+                
+                // Draw inner circle
+                ctx.beginPath();
+                ctx.arc(size/2, size/2, size/2.2, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+                
+                // Draw car silhouette
+                drawCar(ctx, size, secondaryColor);
+                
+                // Draw magnifying glass
+                drawMagnifyingGlass(ctx, size, accentColor);
+                
+                // Draw dollar sign
+                drawDollarSign(ctx, size, primaryColor);
+            }
+            
+            // Function to download all icons as a ZIP file
+            async function downloadAllIcons() {
+                const zip = new JSZip();
+                
+                // Add each icon to the ZIP
+                for (const iconInfo of iconSizes) {
+                    const { size, name } = iconInfo;
+                    
+                    // Create temporary canvas for this size
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = size;
+                    tempCanvas.height = size;
+                    const tempCtx = tempCanvas.getContext('2d');
+                    
+                    // Draw icon at this size
+                    drawIconAtSize(tempCtx, size);
+                    
+                    // Get blob data
+                    const blob = await new Promise(resolve => {
+                        tempCanvas.toBlob(resolve, 'image/png');
+                    });
+                    
+                    // Add to ZIP
+                    zip.file(name, blob);
+                }
+                
+                // Generate ZIP file
+                const zipBlob = await zip.generateAsync({ type: 'blob' });
+                
+                // Download the ZIP
+                saveAs(zipBlob, 'car-auction-analyzer-icons.zip');
+            }
+        });
+    </script>
+</body>
+</html>
