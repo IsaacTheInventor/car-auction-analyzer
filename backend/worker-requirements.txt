@@ -1,0 +1,45 @@
+# Car Auction Analyzer - Worker-Specific Requirements
+# These are additional dependencies for worker containers that handle ML processing
+
+# GPU Support
+torch-cuda>=2.0.1,<3.0.0  # PyTorch with CUDA support
+cupy-cuda12x>=12.0.0,<13.0.0  # GPU-accelerated NumPy-compatible array library
+nvidia-ml-py>=12.535.77,<13.0.0  # NVIDIA Management Library Python bindings
+
+# ML Optimization
+onnxruntime-gpu>=1.16.0,<2.0.0  # ONNX Runtime with GPU acceleration
+tensorrt>=8.6.1,<9.0.0  # NVIDIA TensorRT for high-performance inference
+triton>=2.1.0,<3.0.0  # PyTorch JIT compiler
+
+# Advanced Computer Vision
+albumentations>=1.3.1,<2.0.0  # Advanced image augmentations
+kornia>=0.7.0,<0.8.0  # Computer vision library for PyTorch
+detectron2>=0.6,<0.7  # Facebook AI Research's computer vision library
+segment-anything>=1.0,<2.0  # Meta's Segment Anything Model
+
+# Specialized ML
+transformers>=4.34.0,<5.0.0  # Hugging Face Transformers for advanced models
+timm>=0.9.7,<1.0.0  # PyTorch Image Models
+efficientnet-pytorch>=0.7.1,<0.8.0  # EfficientNet implementation
+fastai>=2.7.12,<3.0.0  # High-level deep learning library
+
+# Distributed Training
+ray[tune]>=2.7.0,<3.0.0  # Distributed computing framework
+horovod>=0.28.0,<0.29.0  # Distributed training framework
+
+# Monitoring & Profiling
+wandb>=0.15.11,<0.16.0  # Weights & Biases for experiment tracking
+pytorch-lightning>=2.1.0,<3.0.0  # PyTorch Lightning for organized ML code
+nvtx>=0.2.5,<0.3.0  # NVIDIA Tools Extension
+torch-tb-profiler>=0.4.1,<0.5.0  # PyTorch Profiler with TensorBoard
+
+# Optimized Data Processing
+dask[complete]>=2023.7.0  # Parallel computing library
+vaex>=4.16.0,<5.0.0  # Out-of-core DataFrames
+numba>=0.58.0,<0.59.0  # JIT compiler for accelerating numerical functions
+pyarrow>=13.0.0,<14.0.0  # Efficient columnar memory format
+
+# Specialized Scraping
+playwright>=1.38.0,<2.0.0  # Modern browser automation
+scrapy>=2.11.0,<3.0.0  # Advanced web scraping framework
+selenium-stealth>=1.0.6,<2.0.0  # Avoid detection when using Selenium

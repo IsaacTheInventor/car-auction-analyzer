@@ -1,0 +1,112 @@
+# Multi-stage build for Car Auction Analyzer Worker
+# Stage 1: Build dependencies (shared with main Dockerfile)
+FROM python:3.12-slim AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies required for OpenCV, ML libraries and other packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    python3-dev \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install pip tools
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# Copy requirements file
+COPY requirements.txt .
+
+# Additional ML requirements for worker
+COPY worker-requirements.txt .
+
+# Install Python dependencies
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r worker-requirements.txt
+
+# Stage 2: Final image
+FROM python:3.12-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/home/appuser/.local/bin:$PATH" \
+    PYTHONPATH="/app:$PYTHONPATH" \
+    # Worker-specific environment variables
+    C_FORCE_ROOT=false \
+    CELERY_WORKER_NAME=car_auction_worker \
+    CELERY_TASK_ALWAYS_EAGER=false \
+    CELERY_WORKER_CONCURRENCY=4 \
+    CELERY_WORKER_PREFETCH_MULTIPLIER=1 \
+    CELERY_MAX_TASKS_PER_CHILD=10 \
+    CELERY_WORKER_HIJACK_ROOT_LOGGER=false
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies required at runtime
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
+    libgomp1 \
+    curl \
+    # Additional packages for workers
+    htop \
+    procps \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# GPU support (optional) - uncomment if using CUDA
+# ENV NVIDIA_VISIBLE_DEVICES=all
+# ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+# Create a non-root user
+RUN useradd -m -d /home/appuser -s /bin/bash appuser \
+    && mkdir -p /app/uploads /app/models /app/logs \
+    && chown -R appuser:appuser /app
+
+# Copy wheels from builder stage
+COPY --from=builder /app/wheels /wheels
+COPY --from=builder /app/requirements.txt .
+COPY --from=builder /app/worker-requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir /wheels/* \
+    && rm -rf /wheels
+
+# Copy application code
+COPY --chown=appuser:appuser . .
+
+# Set proper permissions
+RUN chmod -R 755 /app
+
+# Switch to non-root user
+USER appuser
+
+# Health check for worker
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD celery -A app.worker.celery inspect ping -d celery@$HOSTNAME || exit 1
+
+# Create entrypoint script with proper signal handling
+COPY --chown=appuser:appuser ./scripts/worker-entrypoint.sh /app/worker-entrypoint.sh
+RUN chmod +x /app/worker-entrypoint.sh
+
+# Entrypoint with signal handling for graceful shutdown
+ENTRYPOINT ["/app/worker-entrypoint.sh"]
+
+# Default command (can be overridden)
+CMD ["celery", "-A", "app.worker.celery", "worker", "--loglevel=info"]
