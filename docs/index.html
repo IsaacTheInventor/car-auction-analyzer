@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Car Auction Analyzer</title>
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAABDNJREFUWEfFl11sFFUUx//nzuxud7vd7bbbQlugLYWWj9JKQbBpJCCID2gIGk18wETig4+YmBiMiS8++WBi4osPPqgPhGhMTAgSFR+QD6MEBQFKS0uhtBTaUtrSbbvbnZk7Zu7ObHe3s9NtC+GmTTZz7z33d/7nnHvPXcIcP7+8u7LcIBQBZBHAiwkgCYBnAKQAJADEAfSB0EuEXhD1Gg7HwLbXLw3OZVqa7eDNnRUVRQZ2gLEDwCoABXOJDWAYwDEQDqZNc//2N/tjs41lCrB7V6XPNLEHQC2AwGwTZPl9BNBgGPRhXd3lRKZYUwLs3lXlM03sAbAJgGM2yafxTQI4bBj0YV3d5XiyWEkBdu+q9Jo8L3pOCZ8QTdyJfbX1l2OJMBMCvPVOlYcM7CWiTXM1uSxjHzMMfFBXfyU6Oc6EALt2VXkNxj4i2jjLpDPxJgAcMQzaWVd/JTIeYFwAYXLDwD4ibJjNzLPwPWoA77+2/srI2FhjArz5dpXHNLCPiNbPYsLZuJ4wDLxfV38lLJ1HARTnG8ZeIqybzcRz8D1mGNhZV38lJAHe2F3lNhnvE9HaOUw6F9ejBmNnXf2VYYcweWzm+QqPALhmHl9JRCsBrCTgRQAVAIrnEPcGgOccDBwgojVzCCRdxMl/A3ABQDeALgDnGfgbQHw2cYno7+deXLHc4TBwkIhWzyaI8P0HwI8AjgP4FYBl+VvfAQAvAHgJwHoARdONS0SnHYaBg0S0arpBhF8UwI8ADgFoA6DM6gTgBfAygLcArE0XhIhOOQzGASJ6cbpBhN8QgO8BHATQnmHWQrFSAWwA8A6A51MFIaI/HIZpHiCildMJInxCAL4D8BWAa1nMmgvAcwDeA/BqqiBEdMphmuZ+Ilox1SDCPgrgWwBfA+jIYdZsAZ4B8D6ArckgRNTqME1zHxEtn0oQYRsB8A2ArwD8m8esuQAsA/ABgO2JIETULgF2ElHVpCDCJgLgawD7AfyXx6y5ACwF8CGAHYkgRNTpMAzsIaLKfEGETRjAVwC+BHAzj1lzAagE8BGAnRJANLscJuNdIlqWL4iwuQPgCwD7ANzKY9ZcACoAfAxglwS47jAZ7xDR0nxBhM1tAJ8D+AzAnTxmzQVgMYBPAOyWADcdJuNtIlqSL4iwGQHwGYC9AO7mMWsuAOUAPgXwpgS47TAZbxHR4nxBhM0wgE8B7AEQymPWXACCAD4DsEcChB0m4w0iWpQviLAZAvAJgI8BDOQxay4AJQA+B/C2BBh1mIzXiWhBviDCZhDAHgAfARjMY9ZcAIoB7AWwRwLEHCbjNSIK5gvCwACAjwDsBhDOY9ZcAAIAvgDwrgSIO0zGq0RUmitAIp8HRO8nOt9IHrPmAuAD8KUEkK+jDsZYTURFuQIk8rkP4EMAdwHE85g1FwAvgK8kwKjDYLxCRIX5giTy+T6A9/KYM1+aLwHslQBDDsZYRUR+BRCd7z0Aw3nMmguAG8DXEuD/AAAA//9kXQfTJlbLOgAAAABJRU5ErkJggg==">
+    <style>
+        /* Reset and base styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f2f2f7;
+            color: #333;
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+            position: fixed;
+        }
+        
+        /* App container */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        /* Header */
+        .app-header {
+            background-color: #0066cc;
+            color: white;
+            padding: 12px 16px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .app-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+        
+        /* Main content area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Camera view */
+        .camera-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background-color: #000;
+        }
+        
+        #camera-view {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+        
+        .camera-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 16px;
+            pointer-events: none;
+        }
+        
+        /* Category badge */
+        .category-badge {
+            background-color: rgba(0,0,0,0.6);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            align-self: flex-start;
+            margin-top: 8px;
+            pointer-events: auto;
+        }
+        
+        /* Camera controls */
+        .camera-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            pointer-events: auto;
+        }
+        
+        .control-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background-color: rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            border: none;
+            outline: none;
+        }
+        
+        .capture-button {
+            width: 70px;
+            height: 70px;
+            border-radius: 35px;
+            background-color: rgba(255,255,255,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid white;
+        }
+        
+        .capture-button-inner {
+            width: 54px;
+            height: 54px;
+            border-radius: 27px;
+            background-color: white;
+        }
+        
+        /* Category selector */
+        .category-selector {
+            background-color: white;
+            padding: 8px 0;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .category-scroller {
+            display: inline-block;
+            padding: 0 8px;
+        }
+        
+        .category-button {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 0 4px;
+            border-radius: 16px;
+            background-color: #f2f2f7;
+            color: #333;
+            font-size: 14px;
+            border: none;
+            outline: none;
+        }
+        
+        .category-button.selected {
+            background-color: #0066cc;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Gallery */
+        .gallery-container {
+            background-color: white;
+            padding: 12px;
+            border-top: 1px solid #e5e5ea;
+        }
+        
+        .gallery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .gallery-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .gallery-button {
+            display: flex;
+            align-items: center;
+            color: #0066cc;
+            background: none;
+            border: none;
+            padding: 4px 8px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .gallery-button-icon {
+            margin-left: 4px;
+        }
+        
+        .photos-container {
+            display: flex;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 4px 0;
+            min-height: 100px;
+        }
+        
+        .empty-photos {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 16px;
+            color: #8e8e93;
+        }
+        
+        .empty-photos-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .photo-preview {
+            position: relative;
+            margin-right: 8px;
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100px;
+            height: 100px;
+        }
+        
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .preview-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 4px;
+        }
+        
+        .remove-photo {
+            align-self: flex-end;
+            color: #ff3b30;
+            background: none;
+            border: none;
+            font-size: 24px;
+            line-height: 1;
+            padding: 0;
+        }
+        
+        .preview-category {
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 4px;
+            background-color: rgba(0,0,0,0.5);
+            border-radius: 4px;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* Action buttons */
+        .action-container {
+            display: flex;
+            padding: 12px;
+            background-color: white;
+            border-top: 1px solid #e5e5ea;
+        }
+        
+        .action-button {
+            flex: 1;
+            height: 50px;
+            border-radius: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin: 0 4px;
+            border: none;
+            outline: none;
+        }
+        
+        .primary-button {
+            background-color: #0066cc;
+            color: white;
+        }
+        
+        .secondary-button {
+            background-color: white;
+            color: #0066cc;
+            border: 1px solid #0066cc;
+        }
+        
+        .button-icon {
+            margin-right: 8px;
+        }
+        
+        .action-button:disabled {
+            opacity: 0.5;
+        }
+        
+        /* Loading/uploading UI */
+        .uploading-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(0,102,204,0.3);
+            border-top: 3px solid #0066cc;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 12px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .uploading-text {
+            color: #0066cc;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e5ea;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #0066cc;
+            transition: width 0.3s ease;
+        }
+        
+        /* Analysis results modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid #e5e5ea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #8e8e93;
+        }
+        
+        .modal-body {
+            padding: 16px;
+        }
+        
+        .result-section {
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #0066cc;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e5ea;
+        }
+        
+        .item-label {
+            color: #8e8e93;
+        }
+        
+        .item-value {
+            font-weight: bold;
+            text-align: right;
+        }
+        
+        .damage-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px;
+            background-color: #f2f2f7;
+            border-radius: 8px;
+        }
+        
+        .damage-icon {
+            margin-right: 12px;
+            color: #ff3b30;
+            font-size: 20px;
+        }
+        
+        .damage-details {
+            flex: 1;
+        }
+        
+        .damage-location {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .damage-severity {
+            font-size: 12px;
+            color: #8e8e93;
+        }
+        
+        .damage-cost {
+            font-weight: bold;
+            color: #ff3b30;
+        }
+        
+        .roi-good {
+            color: #34c759;
+        }
+        
+        .roi-bad {
+            color: #ff3b30;
+        }
+        
+        .roi-warning {
+            color: #ff9500;
+        }
+        
+        .modal-footer {
+            padding: 16px;
+            border-top: 1px solid #e5e5ea;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .modal-button {
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            border: none;
+            outline: none;
+        }
+        
+        /* Permission denied screen */
+        .permission-denied {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #f2f2f7;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 5;
+            text-align: center;
+        }
+        
+        .permission-icon {
+            font-size: 64px;
+            color: #ff3b30;
+            margin-bottom: 16px;
+        }
+        
+        .permission-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+        
+        .permission-text {
+            color: #8e8e93;
+            margin-bottom: 24px;
+            line-height: 1.4;
+        }
+        
+        .permission-button {
+            background-color: #0066cc;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-weight: bold;
+            border: none;
+            outline: none;
+        }
+        
+        /* Loading screen */
+        .loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #f2f2f7;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+        }
+        
+        .loading-text {
+            margin-top: 16px;
+            color: #8e8e93;
+        }
+        
+        /* Icons */
+        .icon {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            stroke-width: 0;
+            stroke: currentColor;
+            fill: currentColor;
+            vertical-align: middle;
+        }
+        
+        /* Responsive adjustments */
+        @media (min-height: 700px) {
+            .gallery-container {
+                padding: 16px;
+            }
+            
+            .photo-preview {
+                width: 120px;
+                height: 120px;
+            }
+        }
+        
+        @media (max-width: 320px) {
+            .photo-preview {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .action-button {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- App Header -->
+        <header class="app-header">
+            <h1 class="app-title">Car Auction Analyzer</h1>
+            <div class="header-subtitle">Take photos to analyze vehicle condition</div>
+        </header>
+        
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Camera Container -->
+            <div class="camera-container">
+                <video id="camera-view" autoplay playsinline></video>
+                
+                <div class="camera-overlay">
+                    <!-- Category Badge -->
+                    <div class="category-badge" id="category-badge">Exterior Front</div>
+                    
+                    <!-- Camera Controls -->
+                    <div class="camera-controls">
+                        <button class="control-button" id="flash-toggle">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M7 2v11h3v9l7-12h-4l4-8z"></path>
+                            </svg>
+                        </button>
+                        
+                        <button class="capture-button" id="capture-button">
+                            <div class="capture-button-inner"></div>
+                        </button>
+                        
+                        <button class="control-button" id="camera-toggle">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M16 16c0 1.104-0.896 2-2 2h-8c-1.104 0-2-0.896-2-2v-8c0-1.104 0.896-2 2-2h8c1.104 0 2 0.896 2 2v8zM7 1c-1.657 0-3 1.343-3 3v1h-1c-1.657 0-3 1.343-3 3v12c0 1.657 1.343 3 3 3h12c1.657 0 3-1.343 3-3v-1h1c1.657 0 3-1.343 3-3v-12c0-1.657-1.343-3-3-3h-12zM7 3h12c0.552 0 1 0.448 1 1v12c0 0.552-0.448 1-1 1h-1v-9c0-1.657-1.343-3-3-3h-9v-1c0-0.552 0.448-1 1-1zM3 7h12c0.552 0 1 0.448 1 1v12c0 0.552-0.448 1-1 1h-12c-0.552 0-1-0.448-1-1v-12c0-0.552 0.448-1 1-1z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Permission Denied Screen (hidden by default) -->
+                <div class="permission-denied" id="permission-denied" style="display: none;">
+                    <div class="permission-icon">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M12 2c-5.514 0-10 4.486-10 10s4.486 10 10 10 10-4.486 10-10-4.486-10-10-10zM12 20c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zM16 11h-8v2h8v-2z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="permission-title">Camera Access Denied</h2>
+                    <p class="permission-text">
+                        This app needs camera access to analyze vehicles. Please enable camera access in your browser settings and reload the page.
+                    </p>
+                    <button class="permission-button" id="retry-permission">Try Again</button>
+                </div>
+                
+                <!-- Loading Screen -->
+                <div class="loading-screen" id="loading-screen">
+                    <div class="spinner"></div>
+                    <p class="loading-text">Initializing camera...</p>
+                </div>
+            </div>
+            
+            <!-- Category Selector -->
+            <div class="category-selector">
+                <div class="category-scroller" id="category-scroller">
+                    <button class="category-button selected" data-category="Exterior Front">Exterior Front</button>
+                    <button class="category-button" data-category="Exterior Rear">Exterior Rear</button>
+                    <button class="category-button" data-category="Exterior Driver">Exterior Driver Side</button>
+                    <button class="category-button" data-category="Exterior Passenger">Exterior Passenger Side</button>
+                    <button class="category-button" data-category="Interior Dashboard">Interior Dashboard</button>
+                    <button class="category-button" data-category="Interior Seats">Interior Seats</button>
+                    <button class="category-button" data-category="Damage Area">Damage Area</button>
+                    <button class="category-button" data-category="Other">Other</button>
+                </div>
+            </div>
+            
+            <!-- Gallery -->
+            <div class="gallery-container">
+                <div class="gallery-header">
+                    <h3 class="gallery-title">Photos (<span id="photo-count">0</span>)</h3>
+                    <button class="gallery-button" id="gallery-toggle">
+                        Pick from Gallery
+                        <span class="gallery-button-icon">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M22 16v-12c0-1.104-0.896-2-2-2h-16c-1.104 0-2 0.896-2 2v12c0 1.104 0.896 2 2 2h16c1.104 0 2-0.896 2-2zM2 16v-12h16l0.001 12h-16.001zM6 4h-4v-2h4v2zM6 22h-4v-2h4v2zM10 22h-4v-2h4v2zM14 22h-4v-2h4v2zM18 22h-4v-2h4v2zM22 22h-4v-2h4v2zM19 9.828l-2-2-6 6-2.5-2.5-2 2 4.5 4.5 8-8z"></path>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+                
+                <div class="photos-container" id="photos-container">
+                    <div class="empty-photos" id="empty-photos">
+                        <div class="empty-photos-icon">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M5 3h-1v-1h-2v1h-1c-0.552 0-1 0.448-1 1v18c0 0.552 0.448 1 1 1h4c0.552 0 1-0.448 1-1v-18c0-0.552-0.448-1-1-1zM4 21h-2v-1h2v1zM4 19h-2v-1h2v1zM4 17h-2v-1h2v1zM4 15h-2v-1h2v1zM4 13h-2v-1h2v1zM4 11h-2v-1h2v1zM4 9h-2v-1h2v1zM4 7h-2v-1h2v1zM4 5h-2v-1h2v1zM9 3v4h12v-4h-12zM15 5h-4v-1h4v1zM22 9v-1h-12v1h12zM22 11v-1h-12v1h12zM22 13v-1h-12v1h12zM22 15v-1h-12v1h12zM22 17v-1h-12v1h12zM22 19v-1h-12v1h12zM22 21v-1h-12v1h12z"></path>
+                            </svg>
+                        </div>
+                        <p>No photos yet. Take a photo or select from gallery.</p>
+                    </div>
+                    <!-- Photo previews will be added here dynamically -->
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-container" id="action-container">
+                <button class="action-button secondary-button" id="vehicle-info-button" disabled>
+                    <span class="button-icon">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M18.92 6.01c-0.2-0.59-0.76-0.99-1.4-0.99h-11.04c-0.64 0-1.21 0.4-1.41 0.99l-2.07 5.99v7c0 0.55 0.45 1 1 1h1c0.55 0 1-0.45 1-1v-1h12v1c0 0.55 0.45 1 1 1h1c0.55 0 1-0.45 1-1v-7l-2.08-5.99zM6.85 7h10.29l1.04 3h-12.36l1.03-3zM19 16h-14v-5h14v5zM7.5 14c0.83 0 1.5-0.67 1.5-1.5s-0.67-1.5-1.5-1.5-1.5 0.67-1.5 1.5 0.67 1.5 1.5 1.5zM16.5 14c0.83 0 1.5-0.67 1.5-1.5s-0.67-1.5-1.5-1.5-1.5 0.67-1.5 1.5 0.67 1.5 1.5 1.5z"></path>
+                        </svg>
+                    </span>
+                    Add Vehicle Info
+                </button>
+                
+                <button class="action-button primary-button" id="analyze-button" disabled>
+                    <span class="button-icon">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M19.35 10.04c-0.68-3.45-3.71-6.04-7.35-6.04-2.89 0-5.4 1.64-6.65 4.04-3.01 0.32-5.35 2.87-5.35 5.96 0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4h-3l5-5 5 5h-3z"></path>
+                        </svg>
+                    </span>
+                    Upload for Analysis
+                </button>
+            </div>
+            
+            <!-- Uploading UI (hidden by default) -->
+            <div class="action-container" id="uploading-container" style="display: none;">
+                <div class="uploading-container">
+                    <div class="spinner"></div>
+                    <p class="uploading-text">Analyzing... <span id="upload-progress">0</span>%</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Analysis Results Modal (hidden by default) -->
+        <div class="modal" id="results-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Analysis Results</h2>
+                    <button class="close-modal" id="close-modal">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <!-- Vehicle Identification -->
+                    <div class="result-section">
+                        <h3 class="section-title">Vehicle Identification</h3>
+                        <div class="result-item">
+                            <span class="item-label">Make</span>
+                            <span class="item-value" id="result-make">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="item-label">Model</span>
+                            <span class="item-value" id="result-model">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="item-label">Year</span>
+                            <span class="item-value" id="result-year">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="item-label">Trim</span>
+                            <span class="item-value" id="result-trim">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="item-label">Confidence</span>
+                            <span class="item-value" id="result-confidence">-</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Damage Assessment -->
+                    <div class="result-section">
+                        <h3 class="section-title">Damage Assessment</h3>
+                        <div id="damage-items">
+                            <!-- Damage items will be added here dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Market Price -->
+                    <div class="result-section">
+                        <h3 class="section-title">Market Price</h3>
+                        <div class="result-item">
+                            <span class="item-label">Average Retail</span>
+                            <span class="item-value" id="result-retail">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="item-label">Trade-In Value</span>
+                            <span class="item-value" id="result-tradein">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="item-label">Private Party</span>
+                            <span class="item-value" id="result-private">-</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Parts & Repair Costs -->
+                    <div class="result-section">
+                        <h3 class="section-title">Repair Costs</h3>
+                        <div class="result-item">
+                            <span class="item-label">Parts Total</span>
+                            <span class="item-value" id="result-parts">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="item-label">Labor Estimate</span>
+                            <span class="item-value" id="result-labor">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="item-label">Total Repair Cost</span>
+                            <span class="item-value" id="result-total">-</span>
+                        </div>
+                    </div>
+                    
+                    <!-- ROI Calculation -->
+                    <div class="result-section">
+                        <h3 class="section-title">ROI Analysis</h3>
+                        <div class="result-item">
+                            <span class="item-label">Asking Price</span>
+                            <span class="item-value" id="result-asking">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="item-label">Total Investment</span>
+                            <span class="item-value" id="result-investment">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="item-label">Potential Profit</span>
+                            <span class="item-value" id="result-profit">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="item-label">ROI</span>
+                            <span class="item-value" id="result-roi">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="item-label">Recommendation</span>
+                            <span class="item-value" id="result-recommendation">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button class="modal-button primary-button" id="close-results">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Main app class
+        class CarAuctionAnalyzer {
+            constructor() {
+                // DOM elements
+                this.cameraView = document.getElementById('camera-view');
+                this.captureButton = document.getElementById('capture-button');
+                this.cameraToggle = document.getElementById('camera-toggle');
+                this.flashToggle = document.getElementById('flash-toggle');
+                this.categoryBadge = document.getElementById('category-badge');
+                this.categoryScroller = document.getElementById('category-scroller');
+                this.photosContainer = document.getElementById('photos-container');
+                this.emptyPhotos = document.getElementById('empty-photos');
+                this.photoCount = document.getElementById('photo-count');
+                this.galleryToggle = document.getElementById('gallery-toggle');
+                this.vehicleInfoButton = document.getElementById('vehicle-info-button');
+                this.analyzeButton = document.getElementById('analyze-button');
+                this.actionContainer = document.getElementById('action-container');
+                this.uploadingContainer = document.getElementById('uploading-container');
+                this.uploadProgress = document.getElementById('upload-progress');
+                this.progressFill = document.getElementById('progress-fill');
+                this.permissionDenied = document.getElementById('permission-denied');
+                this.retryPermission = document.getElementById('retry-permission');
+                this.loadingScreen = document.getElementById('loading-screen');
+                this.resultsModal = document.getElementById('results-modal');
+                this.closeModal = document.getElementById('close-modal');
+                this.closeResults = document.getElementById('close-results');
+                
+                // State
+                this.stream = null;
+                this.photos = [];
+                this.selectedCategory = 'Exterior Front';
+                this.cameraFacingMode = 'environment'; // 'environment' for back camera, 'user' for front
+                this.flashMode = 'off';
+                this.isUploading = false;
+                
+                // Initialize
+                this.initializeApp();
+            }
+            
+            // Initialize the app
+            async initializeApp() {
+                // Set up event listeners
+                this.setupEventListeners();
+                
+                // Start camera
+                await this.startCamera();
+                
+                // Simulate a "splash screen" effect
+                setTimeout(() => {
+                    this.loadingScreen.style.display = 'none';
+                }, 1500);
+            }
+            
+            // Set up event listeners
+            setupEventListeners() {
+                // Capture button
+                this.captureButton.addEventListener('click', () => this.capturePhoto());
+                
+                // Camera toggle
+                this.cameraToggle.addEventListener('click', () => this.toggleCamera());
+                
+                // Flash toggle
+                this.flashToggle.addEventListener('click', () => this.toggleFlash());
+                
+                // Category buttons
+                this.categoryScroller.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('category-button')) {
+                        this.selectCategory(e.target.dataset.category);
+                    }
+                });
+                
+                // Gallery toggle
+                this.galleryToggle.addEventListener('click', () => this.pickFromGallery());
+                
+                // Vehicle info button
+                this.vehicleInfoButton.addEventListener('click', () => this.showVehicleInfoForm());
+                
+                // Analyze button
+                this.analyzeButton.addEventListener('click', () => this.analyzePhotos());
+                
+                // Retry permission button
+                this.retryPermission.addEventListener('click', () => this.startCamera());
+                
+                // Modal close buttons
+                this.closeModal.addEventListener('click', () => this.hideResultsModal());
+                this.closeResults.addEventListener('click', () => this.hideResultsModal());
+            }
+            
+            // Start the camera
+            async startCamera() {
+                try {
+                    // Show loading screen
+                    this.loadingScreen.style.display = 'flex';
+                    
+                    // Check if getUserMedia is supported
+                    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                        throw new Error('Camera API not supported in your browser.');
+                    }
+                    
+                    // Stop any existing stream
+                    if (this.stream) {
+                        this.stream.getTracks().forEach(track => track.stop());
+                    }
+                    
+                    // Get camera stream
+                    this.stream = await navigator.mediaDevices.getUserMedia({
+                        video: {
+                            facingMode: this.cameraFacingMode,
+                            width: { ideal: 1920 },
+                            height: { ideal: 1080 }
+                        },
+                        audio: false
+                    });
+                    
+                    // Set video source
+                    this.cameraView.srcObject = this.stream;
+                    
+                    // Hide permission denied screen if visible
+                    this.permissionDenied.style.display = 'none';
+                    
+                    // Hide loading screen after a short delay
+                    setTimeout(() => {
+                        this.loadingScreen.style.display = 'none';
+                    }, 500);
+                } catch (error) {
+                    console.error('Error starting camera:', error);
+                    
+                    // Show permission denied screen
+                    this.permissionDenied.style.display = 'flex';
+                    this.loadingScreen.style.display = 'none';
+                }
+            }
+            
+            // Toggle between front and back cameras
+            toggleCamera() {
+                this.cameraFacingMode = this.cameraFacingMode === 'environment' ? 'user' : 'environment';
+                this.startCamera();
+            }
+            
+            // Toggle flash (note: this is just a UI toggle, actual flash control depends on device support)
+            toggleFlash() {
+                this.flashMode = this.flashMode === 'off' ? 'on' : 'off';
+                
+                // Update flash icon
+                if (this.flashMode === 'on') {
+                    this.flashToggle.innerHTML = `
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M7 2v11h3v9l7-12h-4l4-8z"></path>
+                        </svg>
+                    `;
+                } else {
+                    this.flashToggle.innerHTML = `
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M7 2v11h3v9l7-12h-4l4-8z"></path>
+                            <path d="M 3,3 21,21" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                    `;
+                }
+                
+                // Try to set flash if available
+                if (this.stream) {
+                    const track = this.stream.getVideoTracks()[0];
+                    if (track && track.getCapabilities && track.getCapabilities().torch) {
+                        track.applyConstraints({
+                            advanced: [{ torch: this.flashMode === 'on' }]
+                        }).catch(e => console.log('Flash not supported on this device'));
+                    }
+                }
+            }
+            
+            // Select a category
+            selectCategory(category) {
+                this.selectedCategory = category;
+                
+                // Update category badge
+                this.categoryBadge.textContent = category;
+                
+                // Update category buttons
+                const buttons = this.categoryScroller.querySelectorAll('.category-button');
+                buttons.forEach(button => {
+                    if (button.dataset.category === category) {
+                        button.classList.add('selected');
+                    } else {
+                        button.classList.remove('selected');
+                    }
+                });
+            }
+            
+            // Capture a photo
+            capturePhoto() {
+                // Create a canvas element
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                
+                // Set canvas dimensions to match video
+                canvas.width = this.cameraView.videoWidth;
+                canvas.height = this.cameraView.videoHeight;
+                
+                // Draw the video frame to the canvas
+                context.drawImage(this.cameraView, 0, 0, canvas.width, canvas.height);
+                
+                // Get the data URL from the canvas
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                
+                // Create a photo object
+                const photo = {
+                    id: Date.now().toString(),
+                    dataUrl: dataUrl,
+                    category: this.selectedCategory,
+                    timestamp: new Date()
+                };
+                
+                // Add to photos array
+                this.photos.push(photo);
+                
+                // Update UI
+                this.updatePhotosUI();
+                
+                // Provide feedback (flash effect)
+                this.createFlashEffect();
+            }
+            
+            // Create a flash effect when taking a photo
+            createFlashEffect() {
+                const flash = document.createElement('div');
+                flash.style.position = 'absolute';
+                flash.style.top = '0';
+                flash.style.left = '0';
+                flash.style.right = '0';
+                flash.style.bottom = '0';
+                flash.style.backgroundColor = 'white';
+                flash.style.opacity = '0.8';
+                flash.style.zIndex = '4';
+                flash.style.pointerEvents = 'none';
+                
+                document.querySelector('.camera-container').appendChild(flash);
+                
+                // Fade out and remove
+                setTimeout(() => {
+                    flash.style.opacity = '0';
+                    flash.style.transition = 'opacity 0.3s ease';
+                    
+                    setTimeout(() => {
+                        flash.remove();
+                    }, 300);
+                }, 50);
+            }
+            
+            // Update the photos UI
+            updatePhotosUI() {
+                // Update photo count
+                this.photoCount.textContent = this.photos.length.toString();
+                
+                // Show/hide empty state
+                if (this.photos.length > 0) {
+                    this.emptyPhotos.style.display = 'none';
+                    this.vehicleInfoButton.disabled = false;
+                    this.analyzeButton.disabled = false;
+                } else {
+                    this.emptyPhotos.style.display = 'flex';
+                    this.vehicleInfoButton.disabled = true;
+                    this.analyzeButton.disabled = true;
+                }
+                
+                // Clear existing photos
+                const existingPhotos = this.photosContainer.querySelectorAll('.photo-preview');
+                existingPhotos.forEach(photo => {
+                    if (photo !== this.emptyPhotos) {
+                        photo.remove();
+                    }
+                });
+                
+                // Add photo previews
+                this.photos.forEach(photo => {
+                    const photoElement = document.createElement('div');
+                    photoElement.className = 'photo-preview';
+                    photoElement.dataset.id = photo.id;
+                    
+                    photoElement.innerHTML = `
+                        <img src="${photo.dataUrl}" class="preview-image" alt="${photo.category}">
+                        <div class="preview-overlay">
+                            <button class="remove-photo" data-id="${photo.id}">&times;</button>
+                            <div class="preview-category">${photo.category}</div>
+                        </div>
+                    `;
+                    
+                    // Add click handler for remove button
+                    photoElement.querySelector('.remove-photo').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.removePhoto(photo.id);
+                    });
+                    
+                    // Add to container
+                    this.photosContainer.appendChild(photoElement);
+                });
+            }
+            
+            // Remove a photo
+            removePhoto(id) {
+                // Filter out the photo
+                this.photos = this.photos.filter(photo => photo.id !== id);
+                
+                // Update UI
+                this.updatePhotosUI();
+            }
+            
+            // Pick photos from gallery
+            pickFromGallery() {
+                // Create a file input
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = 'image/*';
+                fileInput.multiple = true;
+                
+                // Add change listener
+                fileInput.addEventListener('change', (e) => {
+                    const files = e.target.files;
+                    
+                    if (files && files.length > 0) {
+                        // Process each file
+                        Array.from(files).forEach(file => {
+                            const reader = new FileReader();
+                            
+                            reader.onload = (event) => {
+                                // Create a photo object
+                                const photo = {
+                                    id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                                    dataUrl: event.target.result,
+                                    category: this.selectedCategory,
+                                    timestamp: new Date()
+                                };
+                                
+                                // Add to photos array
+                                this.photos.push(photo);
+                                
+                                // Update UI
+                                this.updatePhotosUI();
+                            };
+                            
+                            reader.readAsDataURL(file);
+                        });
+                    }
+                });
+                
+                // Trigger file selection
+                fileInput.click();
+            }
+            
+            // Show vehicle info form
+            showVehicleInfoForm() {
+                // For demo purposes, we'll just simulate a form with an alert
+                const make = prompt('Enter vehicle make (e.g., Toyota):', 'Honda');
+                if (!make) return;
+                
+                const model = prompt('Enter vehicle model (e.g., Camry):', 'Accord');
+                if (!model) return;
+                
+                const year = prompt('Enter vehicle year (e.g., 2020):', '2019');
+                if (!year) return;
+                
+                const askingPrice = prompt('Enter asking price (e.g., 15000):', '18500');
+                if (!askingPrice) return;
+                
+                // Store vehicle info
+                this.vehicleInfo = {
+                    make,
+                    model,
+                    year,
+                    askingPrice: parseFloat(askingPrice)
+                };
+                
+                // Update button to show info was added
+                this.vehicleInfoButton.innerHTML = `
+                    <span class="button-icon">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M18.92 6.01c-0.2-0.59-0.76-0.99-1.4-0.99h-11.04c-0.64 0-1.21 0.4-1.41 0.99l-2.07 5.99v7c0 0.55 0.45 1 1 1h1c0.55 0 1-0.45 1-1v-1h12v1c0 0.55 0.45 1 1 1h1c0.55 0 1-0.45 1-1v-7l-2.08-5.99zM6.85 7h10.29l1.04 3h-12.36l1.03-3zM19 16h-14v-5h14v5zM7.5 14c0.83 0 1.5-0.67 1.5-1.5s-0.67-1.5-1.5-1.5-1.5 0.67-1.5 1.5 0.67 1.5 1.5 1.5zM16.5 14c0.83 0 1.5-0.67 1.5-1.5s-0.67-1.5-1.5-1.5-1.5 0.67-1.5 1.5 0.67 1.5 1.5 1.5z"></path>
+                        </svg>
+                    </span>
+                    ${make} ${model} (${year})
+                `;
+            }
+            
+            // Analyze photos
+            analyzePhotos() {
+                // Check if we have photos
+                if (this.photos.length === 0) {
+                    alert('Please take at least one photo before analyzing.');
+                    return;
+                }
+                
+                // Show uploading UI
+                this.actionContainer.style.display = 'none';
+                this.uploadingContainer.style.display = 'flex';
+                this.isUploading = true;
+                
+                // Simulate upload progress
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += Math.random() * 5;
+                    if (progress > 100) progress = 100;
+                    
+                    this.uploadProgress.textContent = Math.round(progress);
+                    this.progressFill.style.width = `${progress}%`;
+                    
+                    if (progress >= 100) {
+                        clearInterval(progressInterval);
+                        
+                        // Simulate processing time
+                        setTimeout(() => {
+                            // Reset uploading state
+                            this.actionContainer.style.display = 'flex';
+                            this.uploadingContainer.style.display = 'none';
+                            this.isUploading = false;
+                            
+                            // Show results
+                            this.showAnalysisResults();
+                        }, 1500);
+                    }
+                }, 200);
+            }
+            
+            // Show analysis results
+            showAnalysisResults() {
+                // Get vehicle info (use defaults if not set)
+                const vehicleInfo = this.vehicleInfo || {
+                    make: 'Honda',
+                    model: 'Accord',
+                    year: '2019',
+                    askingPrice: 18500
+                };
+                
+                // Populate results
+                document.getElementById('result-make').textContent = vehicleInfo.make;
+                document.getElementById('result-model').textContent = vehicleInfo.model;
+                document.getElementById('result-year').textContent = vehicleInfo.year;
+                document.getElementById('result-trim').textContent = 'EX-L';
+                document.getElementById('result-confidence').textContent = '92%';
+                
+                // Market prices
+                const retailPrice = 23500;
+                const tradeInValue = 19800;
+                const privatePartyValue = 21200;
+                
+                document.getElementById('result-retail').textContent = `$${retailPrice.toLocaleString()}`;
+                document.getElementById('result-tradein').textContent = `$${tradeInValue.toLocaleString()}`;
+                document.getElementById('result-private').textContent = `$${privatePartyValue.toLocaleString()}`;
+                
+                // Repair costs
+                const partsCost = 1250;
+                const laborCost = 850;
+                const totalRepairCost = partsCost + laborCost;
+                
+                document.getElementById('result-parts').textContent = `$${partsCost.toLocaleString()}`;
+                document.getElementById('result-labor').textContent = `$${laborCost.toLocaleString()}`;
+                document.getElementById('result-total').textContent = `$${totalRepairCost.toLocaleString()}`;
+                
+                // ROI calculation
+                const askingPrice = vehicleInfo.askingPrice;
+                const totalInvestment = askingPrice + totalRepairCost;
+                const potentialProfit = retailPrice - totalInvestment;
+                const roi = (potentialProfit / totalInvestment) * 100;
+                
+                document.getElementById('result-asking').textContent = `$${askingPrice.toLocaleString()}`;
+                document.getElementById('result-investment').textContent = `$${totalInvestment.toLocaleString()}`;
+                
+                const profitElement = document.getElementById('result-profit');
+                profitElement.textContent = `$${Math.abs(potentialProfit).toLocaleString()}`;
+                profitElement.className = potentialProfit >= 0 ? 'item-value roi-good' : 'item-value roi-bad';
+                if (potentialProfit >= 0) {
+                    profitElement.textContent = '+' + profitElement.textContent;
+                } else {
+                    profitElement.textContent = '-' + profitElement.textContent;
+                }
+                
+                const roiElement = document.getElementById('result-roi');
+                roiElement.textContent = `${Math.abs(roi).toFixed(1)}%`;
+                roiElement.className = roi >= 0 ? 'item-value roi-good' : 'item-value roi-bad';
+                if (roi >= 0) {
+                    roiElement.textContent = '+' + roiElement.textContent;
+                } else {
+                    roiElement.textContent = '-' + roiElement.textContent;
+                }
+                
+                // Recommendation
+                const recommendationElement = document.getElementById('result-recommendation');
+                if (roi > 15) {
+                    recommendationElement.textContent = 'Strong Buy';
+                    recommendationElement.className = 'item-value roi-good';
+                } else if (roi > 5) {
+                    recommendationElement.textContent = 'Consider Buy';
+                    recommendationElement.className = 'item-value roi-warning';
+                } else {
+                    recommendationElement.textContent = 'Pass';
+                    recommendationElement.className = 'item-value roi-bad';
+                }
+                
+                // Populate damage items
+                const damageItemsContainer = document.getElementById('damage-items');
+                damageItemsContainer.innerHTML = '';
+                
+                // Generate some sample damage items based on the photos
+                const damageTypes = [
+                    { location: 'Front Bumper', severity: 'Moderate', cost: 650, icon: 'car' },
+                    { location: 'Left Rear Quarter Panel', severity: 'Minor', cost: 450, icon: 'car' },
+                    { location: 'Windshield', severity: 'Minor', cost: 350, icon: 'car' },
+                    { location: 'Interior Upholstery', severity: 'Light', cost: 250, icon: 'car' }
+                ];
+                
+                // Only show damage items if we have damage photos
+                const hasDamagePhotos = this.photos.some(photo => 
+                    photo.category === 'Damage Area' || 
+                    photo.category.toLowerCase().includes('damage')
+                );
+                
+                if (hasDamagePhotos) {
+                    // Show all damage types
+                    damageTypes.forEach(damage => {
+                        const damageItem = document.createElement('div');
+                        damageItem.className = 'damage-item';
+                        damageItem.innerHTML = `
+                            <div class="damage-icon">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="M18.92 6.01c-0.2-0.59-0.76-0.99-1.4-0.99h-11.04c-0.64 0-1.21 0.4-1.41 0.99l-2.07 5.99v7c0 0.55 0.45 1 1 1h1c0.55 0 1-0.45 1-1v-1h12v1c0 0.55 0.45 1 1 1h1c0.55 0 1-0.45 1-1v-7l-2.08-5.99zM6.85 7h10.29l1.04 3h-12.36l1.03-3zM19 16h-14v-5h14v5z"></path>
+                                </svg>
+                            </div>
+                            <div class="damage-details">
+                                <div class="damage-location">${damage.location}</div>
+                                <div class="damage-severity">${damage.severity} damage</div>
+                            </div>
+                            <div class="damage-cost">$${damage.cost}</div>
+                        `;
+                        damageItemsContainer.appendChild(damageItem);
+                    });
+                } else {
+                    // Show "No significant damage detected"
+                    const noDamageItem = document.createElement('div');
+                    noDamageItem.className = 'damage-item';
+                    noDamageItem.innerHTML = `
+                        <div class="damage-icon" style="color: #34c759;">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M9 16.17l-4.17-4.17-1.42 1.41 5.59 5.59 12-12-1.41-1.41z"></path>
+                            </svg>
+                        </div>
+                        <div class="damage-details">
+                            <div class="damage-location">No significant damage detected</div>
+                            <div class="damage-severity">Vehicle appears to be in good condition</div>
+                        </div>
+                    `;
+                    damageItemsContainer.appendChild(noDamageItem);
+                }
+                
+                // Show modal
+                this.resultsModal.classList.add('active');
+            }
+            
+            // Hide results modal
+            hideResultsModal() {
+                this.resultsModal.classList.remove('active');
+            }
+        }
+        
+        // Initialize the app when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = new CarAuctionAnalyzer();
+        });
+    </script>
+</body>
+</html>

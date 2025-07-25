@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Car Auction Analyzer - Camera Test</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f2f2f7;
+            color: #333;
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            background-color: #0066cc;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .camera-container {
+            position: relative;
+            flex: 1;
+            overflow: hidden;
+            border-radius: 10px;
+            background-color: #000;
+            margin-bottom: 10px;
+        }
+
+        #camera {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Mirror the camera */
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            background-color: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-capture {
+            width: 70px;
+            height: 70px;
+            border-radius: 35px;
+            padding: 0;
+            background-color: white;
+            border: 3px solid #0066cc;
+        }
+
+        .btn-capture::after {
+            content: '';
+            display: block;
+            width: 54px;
+            height: 54px;
+            border-radius: 27px;
+            background-color: #0066cc;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: #0066cc;
+            border: 1px solid #0066cc;
+        }
+
+        .gallery {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            flex: 0 0 auto;
+            height: 150px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .gallery-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .photos {
+            display: flex;
+            gap: 10px;
+            padding-bottom: 5px;
+        }
+
+        .photo-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(255, 59, 48, 0.8);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .category-selector {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-bottom: 10px;
+            background-color: white;
+            border-radius: 10px;
+        }
+
+        .category-btn {
+            flex: 0 0 auto;
+            padding: 8px 16px;
+            margin: 0 5px;
+            border-radius: 20px;
+            font-size: 14px;
+            background-color: #f2f2f7;
+            border: none;
+            white-space: nowrap;
+        }
+
+        .category-btn.active {
+            background-color: #0066cc;
+            color: white;
+            font-weight: 600;
+        }
+
+        .empty-gallery {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100px;
+            color: #999;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .error-message {
+            background-color: #ff3b30;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .upload-btn {
+            background-color: #34c759;
+        }
+
+        @media (max-height: 700px) {
+            .gallery {
+                height: 120px;
+            }
+            .photo-item {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Car Auction Analyzer</h1>
+        </header>
+
+        <div id="errorMessage" class="error-message hidden">
+            Camera access denied. Please enable camera permissions.
+        </div>
+
+        <div class="camera-container">
+            <video id="camera" autoplay playsinline></video>
+            <div class="camera-overlay" id="categoryDisplay">Exterior Front</div>
+        </div>
+
+        <div class="category-selector">
+            <button class="category-btn active" data-category="Exterior Front">Exterior Front</button>
+            <button class="category-btn" data-category="Exterior Rear">Exterior Rear</button>
+            <button class="category-btn" data-category="Exterior Driver">Driver Side</button>
+            <button class="category-btn" data-category="Exterior Passenger">Passenger Side</button>
+            <button class="category-btn" data-category="Interior Dashboard">Dashboard</button>
+            <button class="category-btn" data-category="Interior Seats">Seats</button>
+            <button class="category-btn" data-category="Damage Area">Damage</button>
+        </div>
+
+        <div class="controls">
+            <button id="switchCamera" class="btn btn-secondary">
+                Switch
+            </button>
+            <button id="captureBtn" class="btn btn-capture"></button>
+            <button id="uploadBtn" class="btn upload-btn">
+                Analyze
+            </button>
+        </div>
+
+        <div class="gallery">
+            <div class="gallery-title">Photos (<span id="photoCount">0</span>)</div>
+            <div id="photos" class="photos">
+                <div id="emptyGallery" class="empty-gallery">
+                    <p>No photos yet. Take some photos to analyze.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        const state = {
+            photos: [],
+            currentCategory: 'Exterior Front',
+            facingMode: 'environment', // 'environment' is the back camera
+            stream: null,
+            canvas: document.createElement('canvas'),
+            photoId: 0
+        };
+
+        // DOM Elements
+        const cameraElement = document.getElementById('camera');
+        const captureBtn = document.getElementById('captureBtn');
+        const switchCameraBtn = document.getElementById('switchCamera');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const photosContainer = document.getElementById('photos');
+        const emptyGallery = document.getElementById('emptyGallery');
+        const photoCountElement = document.getElementById('photoCount');
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        const categoryDisplay = document.getElementById('categoryDisplay');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Initialize camera
+        async function initCamera() {
+            try {
+                // Stop any existing stream
+                if (state.stream) {
+                    state.stream.getTracks().forEach(track => track.stop());
+                }
+
+                // Get camera stream
+                state.stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: state.facingMode,
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    },
+                    audio: false
+                });
+
+                // Set as source for video element
+                cameraElement.srcObject = state.stream;
+                errorMessage.classList.add('hidden');
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                errorMessage.textContent = 'Camera access denied. Please enable camera permissions.';
+                errorMessage.classList.remove('hidden');
+            }
+        }
+
+        // Capture photo
+        function capturePhoto() {
+            if (!state.stream) return;
+
+            // Set canvas dimensions to match video
+            const videoTrack = state.stream.getVideoTracks()[0];
+            const settings = videoTrack.getSettings();
+            
+            // Use actual video dimensions if available, otherwise use element dimensions
+            const width = settings.width || cameraElement.videoWidth || 1280;
+            const height = settings.height || cameraElement.videoHeight || 720;
+            
+            state.canvas.width = width;
+            state.canvas.height = height;
+            
+            // Draw video frame to canvas
+            const context = state.canvas.getContext('2d');
+            
+            // If using front camera, flip the image horizontally
+            if (state.facingMode === 'user') {
+                context.translate(width, 0);
+                context.scale(-1, 1);
+            }
+            
+            context.drawImage(cameraElement, 0, 0, width, height);
+            
+            // Get image data
+            const imageData = state.canvas.toDataURL('image/jpeg', 0.8);
+            
+            // Add to photos array
+            const newPhoto = {
+                id: `photo_${state.photoId++}`,
+                dataUrl: imageData,
+                category: state.currentCategory,
+                timestamp: new Date()
+            };
+            
+            state.photos.push(newPhoto);
+            
+            // Update UI
+            updatePhotoGallery();
+            
+            // Vibrate if supported
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }
+
+        // Update photo gallery
+        function updatePhotoGallery() {
+            // Update photo count
+            photoCountElement.textContent = state.photos.length;
+            
+            // Show/hide empty gallery message
+            if (state.photos.length === 0) {
+                emptyGallery.classList.remove('hidden');
+            } else {
+                emptyGallery.classList.add('hidden');
+            }
+            
+            // Clear existing photos
+            const existingPhotos = photosContainer.querySelectorAll('.photo-item');
+            existingPhotos.forEach(item => {
+                if (item !== emptyGallery) {
+                    item.remove();
+                }
+            });
+            
+            // Add photos to gallery
+            state.photos.forEach(photo => {
+                const photoElement = document.createElement('div');
+                photoElement.className = 'photo-item';
+                photoElement.dataset.id = photo.id;
+                
+                const img = document.createElement('img');
+                img.src = photo.dataUrl;
+                img.alt = photo.category;
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '×';
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deletePhoto(photo.id);
+                });
+                
+                photoElement.appendChild(img);
+                photoElement.appendChild(deleteBtn);
+                photosContainer.appendChild(photoElement);
+            });
+        }
+
+        // Delete photo
+        function deletePhoto(photoId) {
+            state.photos = state.photos.filter(photo => photo.id !== photoId);
+            updatePhotoGallery();
+        }
+
+        // Switch camera
+        function switchCamera() {
+            state.facingMode = state.facingMode === 'environment' ? 'user' : 'environment';
+            initCamera();
+        }
+
+        // Set active category
+        function setCategory(category) {
+            state.currentCategory = category;
+            categoryDisplay.textContent = category;
+            
+            // Update active button
+            categoryButtons.forEach(button => {
+                if (button.dataset.category === category) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+        }
+
+        // Upload photos for analysis
+        function uploadPhotos() {
+            if (state.photos.length === 0) {
+                alert('Please take at least one photo before analyzing.');
+                return;
+            }
+            
+            // In a real app, you would upload the photos to your server here
+            alert(`Ready to analyze ${state.photos.length} photos!\n\nIn the full app, these would be sent to the AI for damage detection, cost estimation, and ROI analysis.`);
+            
+            // Example of how you would format the data for upload
+            const formData = new FormData();
+            
+            // Convert data URLs to Blobs
+            state.photos.forEach((photo, index) => {
+                const blob = dataURItoBlob(photo.dataUrl);
+                formData.append('files', blob, `photo_${index}_${photo.category.replace(/\s+/g, '_')}.jpg`);
+            });
+            
+            // Add metadata
+            const metadata = {
+                timestamp: new Date().toISOString(),
+                photoCount: state.photos.length,
+                categories: state.photos.map(p => p.category)
+            };
+            
+            formData.append('metadata', JSON.stringify(metadata));
+            
+            console.log('Ready to upload:', formData);
+            // In a real app: fetch('/api/analyze', { method: 'POST', body: formData })
+        }
+
+        // Utility: Convert data URI to Blob
+        function dataURItoBlob(dataURI) {
+            const byteString = atob(dataURI.split(',')[1]);
+            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            
+            return new Blob([ab], { type: mimeString });
+        }
+
+        // Event Listeners
+        captureBtn.addEventListener('click', capturePhoto);
+        switchCameraBtn.addEventListener('click', switchCamera);
+        uploadBtn.addEventListener('click', uploadPhotos);
+        
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                setCategory(button.dataset.category);
+            });
+        });
+
+        // Initialize
+        initCamera();
+    </script>
+</body>
+</html>

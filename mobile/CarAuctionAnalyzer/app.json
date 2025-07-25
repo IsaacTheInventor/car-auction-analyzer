@@ -1,0 +1,87 @@
+{
+  "expo": {
+    "name": "Car Auction Analyzer",
+    "slug": "CarAuctionAnalyzer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Car Auction Analyzer to access your camera to take photos of vehicles for analysis."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow Car Auction Analyzer to access your photos to save vehicle images.",
+          "savePhotosPermission": "Allow Car Auction Analyzer to save photos to your gallery.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Car Auction Analyzer to access your photos to select vehicle images for analysis."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Car Auction Analyzer to use your location for auction data."
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.carauctionanalyzer.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Car Auction Analyzer needs access to your camera to take photos of vehicles for analysis.",
+        "NSPhotoLibraryUsageDescription": "Car Auction Analyzer needs access to your photo library to select and save vehicle images.",
+        "NSPhotoLibraryAddUsageDescription": "Car Auction Analyzer needs permission to save vehicle photos to your photo library.",
+        "NSLocationWhenInUseUsageDescription": "Car Auction Analyzer uses your location to provide relevant auction data in your area."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.carauctionanalyzer.app",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ],
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "car-auction-analyzer"
+      }
+    },
+    "owner": "carauctionanalyzer",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/car-auction-analyzer",
+      "enabled": true,
+      "fallbackToCacheTimeout": 0,
+      "checkAutomatically": "ON_LOAD"
+    }
+  }
+}

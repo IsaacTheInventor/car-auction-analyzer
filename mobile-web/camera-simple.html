@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Simple iPhone Camera Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            background-color: #f2f2f7;
+        }
+        h1 {
+            color: #0066cc;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .instructions {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        #startButton {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 25px;
+            margin: 20px 0;
+            cursor: pointer;
+            -webkit-appearance: none;
+        }
+        #startButton:active {
+            background-color: #004c99;
+        }
+        #cameraView {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            background-color: #000;
+            border-radius: 10px;
+            display: none;
+            margin: 0 auto;
+        }
+        #status {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .waiting {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Car Auction Analyzer Camera Test</h1>
+    
+    <div class="instructions">
+        <p>This simple test checks if your iPhone can access the camera for the Car Auction Analyzer app.</p>
+        <p>When you tap the button below, Safari will ask for camera permission. Please tap "Allow".</p>
+    </div>
+    
+    <button id="startButton">Start Camera Test</button>
+    
+    <div id="status" class="waiting">Ready to test camera access...</div>
+    
+    <video id="cameraView" autoplay playsinline></video>
+    
+    <script>
+        // Get elements
+        const startButton = document.getElementById('startButton');
+        const cameraView = document.getElementById('cameraView');
+        const statusDiv = document.getElementById('status');
+        
+        // Stream reference
+        let stream = null;
+        
+        // Add event listener to start button
+        startButton.addEventListener('click', startCamera);
+        
+        // Function to start the camera
+        function startCamera() {
+            // Update status
+            statusDiv.className = 'waiting';
+            statusDiv.textContent = 'Requesting camera permission...';
+            
+            // Check if getUserMedia is supported
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                updateStatus('error', 'Camera API not supported in your browser.');
+                return;
+            }
+            
+            // Request camera access
+            navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment' }, // Use back camera by default
+                audio: false 
+            })
+            .then(function(mediaStream) {
+                // Store stream reference for later cleanup
+                stream = mediaStream;
+                
+                // Display the video stream
+                cameraView.srcObject = mediaStream;
+                cameraView.style.display = 'block';
+                
+                // Update status
+                updateStatus('success', 'Camera permission granted! Camera is now active.');
+                
+                // Change button text to allow camera switching
+                startButton.textContent = 'Switch Camera';
+                startButton.removeEventListener('click', startCamera);
+                startButton.addEventListener('click', switchCamera);
+            })
+            .catch(function(error) {
+                console.error('Error accessing camera:', error);
+                
+                // Provide specific error messages based on the error
+                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                    updateStatus('error', 'Camera permission denied. Please allow camera access in your browser settings.');
+                } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                    updateStatus('error', 'No camera found on your device.');
+                } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+                    updateStatus('error', 'Camera is already in use by another application.');
+                } else {
+                    updateStatus('error', 'Error accessing camera: ' + error.message);
+                }
+            });
+        }
+        
+        // Function to switch between front and back cameras
+        function switchCamera() {
+            // Stop current stream
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            
+            // Toggle camera mode
+            const currentMode = startButton.textContent.includes('Front') ? 'environment' : 'user';
+            const newMode = currentMode === 'environment' ? 'user' : 'environment';
+            
+            // Update button text
+            startButton.textContent = newMode === 'user' ? 'Switch to Back Camera' : 'Switch to Front Camera';
+            
+            // Request new camera
+            navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: newMode },
+                audio: false 
+            })
+            .then(function(mediaStream) {
+                stream = mediaStream;
+                cameraView.srcObject = mediaStream;
+            })
+            .catch(function(error) {
+                updateStatus('error', 'Error switching camera: ' + error.message);
+            });
+        }
+        
+        // Function to update status message
+        function updateStatus(type, message) {
+            statusDiv.className = type;
+            statusDiv.textContent = message;
+        }
+    </script>
+</body>
+</html>
