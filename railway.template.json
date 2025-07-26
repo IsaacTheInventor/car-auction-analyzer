@@ -1,0 +1,247 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "./backend/Dockerfile.prod"
+  },
+  "deploy": {
+    "numReplicas": 1,
+    "startCommand": "gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  },
+  "plugins": {
+    "postgresql": {
+      "service": "db",
+      "version": "15",
+      "plan": "starter"
+    },
+    "redis": {
+      "service": "redis",
+      "version": "7",
+      "plan": "starter"
+    },
+    "object-storage": {
+      "service": "minio",
+      "plan": "starter",
+      "buckets": ["vehicle-images"]
+    }
+  },
+  "services": {
+    "api": {
+      "envVars": [
+        {
+          "key": "DATABASE_URL",
+          "fromService": {
+            "name": "db",
+            "property": "connection_string"
+          }
+        },
+        {
+          "key": "REDIS_URL",
+          "fromService": {
+            "name": "redis",
+            "property": "connection_string"
+          }
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "fromService": {
+            "name": "minio",
+            "property": "endpoint"
+          }
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "fromService": {
+            "name": "minio",
+            "property": "access_key"
+          }
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "fromService": {
+            "name": "minio",
+            "property": "secret_key"
+          }
+        },
+        {
+          "key": "MINIO_BUCKET_IMAGES",
+          "value": "vehicle-images"
+        },
+        {
+          "key": "SECRET_KEY",
+          "generateValue": true
+        },
+        {
+          "key": "ALLOWED_ORIGINS",
+          "value": "https://car-auction-analyzer-isaac.netlify.app"
+        },
+        {
+          "key": "GOOGLE_CLOUD_VISION_API_KEY",
+          "sync": "GOOGLE_CLOUD_VISION_API_KEY"
+        },
+        {
+          "key": "AZURE_COMPUTER_VISION_KEY",
+          "sync": "AZURE_COMPUTER_VISION_KEY"
+        },
+        {
+          "key": "AZURE_COMPUTER_VISION_ENDPOINT",
+          "sync": "AZURE_COMPUTER_VISION_ENDPOINT"
+        },
+        {
+          "key": "IMAGGA_API_KEY",
+          "sync": "IMAGGA_API_KEY"
+        },
+        {
+          "key": "IMAGGA_API_SECRET",
+          "sync": "IMAGGA_API_SECRET"
+        },
+        {
+          "key": "ENVIRONMENT",
+          "value": "production"
+        },
+        {
+          "key": "LOG_LEVEL",
+          "value": "INFO"
+        }
+      ],
+      "healthcheck": {
+        "path": "/api/health",
+        "interval": 30,
+        "timeout": 10,
+        "retries": 3
+      },
+      "resources": {
+        "cpu": 1,
+        "memory": "1024MB"
+      }
+    },
+    "worker": {
+      "envVars": [
+        {
+          "key": "DATABASE_URL",
+          "fromService": {
+            "name": "db",
+            "property": "connection_string"
+          }
+        },
+        {
+          "key": "REDIS_URL",
+          "fromService": {
+            "name": "redis",
+            "property": "connection_string"
+          }
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "fromService": {
+            "name": "minio",
+            "property": "endpoint"
+          }
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "fromService": {
+            "name": "minio",
+            "property": "access_key"
+          }
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "fromService": {
+            "name": "minio",
+            "property": "secret_key"
+          }
+        },
+        {
+          "key": "MINIO_BUCKET_IMAGES",
+          "value": "vehicle-images"
+        },
+        {
+          "key": "SECRET_KEY",
+          "fromService": {
+            "name": "api",
+            "property": "SECRET_KEY"
+          }
+        },
+        {
+          "key": "GOOGLE_CLOUD_VISION_API_KEY",
+          "sync": "GOOGLE_CLOUD_VISION_API_KEY"
+        },
+        {
+          "key": "AZURE_COMPUTER_VISION_KEY",
+          "sync": "AZURE_COMPUTER_VISION_KEY"
+        },
+        {
+          "key": "AZURE_COMPUTER_VISION_ENDPOINT",
+          "sync": "AZURE_COMPUTER_VISION_ENDPOINT"
+        },
+        {
+          "key": "IMAGGA_API_KEY",
+          "sync": "IMAGGA_API_KEY"
+        },
+        {
+          "key": "IMAGGA_API_SECRET",
+          "sync": "IMAGGA_API_SECRET"
+        },
+        {
+          "key": "ENVIRONMENT",
+          "value": "production"
+        },
+        {
+          "key": "LOG_LEVEL",
+          "value": "INFO"
+        }
+      ],
+      "startCommand": "celery -A app.worker.celery worker --loglevel=info --concurrency=2",
+      "resources": {
+        "cpu": 0.5,
+        "memory": "512MB"
+      }
+    },
+    "beat": {
+      "envVars": [
+        {
+          "key": "DATABASE_URL",
+          "fromService": {
+            "name": "db",
+            "property": "connection_string"
+          }
+        },
+        {
+          "key": "REDIS_URL",
+          "fromService": {
+            "name": "redis",
+            "property": "connection_string"
+          }
+        },
+        {
+          "key": "ENVIRONMENT",
+          "value": "production"
+        }
+      ],
+      "startCommand": "celery -A app.worker.celery beat --loglevel=info",
+      "resources": {
+        "cpu": 0.1,
+        "memory": "128MB"
+      }
+    },
+    "flower": {
+      "envVars": [
+        {
+          "key": "REDIS_URL",
+          "fromService": {
+            "name": "redis",
+            "property": "connection_string"
+          }
+        }
+      ],
+      "startCommand": "celery -A app.worker.celery flower --port=$PORT",
+      "resources": {
+        "cpu": 0.2,
+        "memory": "256MB"
+      }
+    }
+  }
+}
