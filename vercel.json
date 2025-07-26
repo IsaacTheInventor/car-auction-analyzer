@@ -21,11 +21,5 @@
     "LOG_LEVEL": "INFO",
     "MINIO_BUCKET_IMAGES": "vehicle-images",
     "ALLOWED_ORIGINS": "https://car-auction-analyzer-isaac.netlify.app"
-  },
-  "functions": {
-    "api/index.py": {
-      "memory": 1024,
-      "maxDuration": 60
-    }
   }
 }
