@@ -1,0 +1,295 @@
+version: '3.8'
+
+services:
+  # Reverse proxy with automatic SSL
+  traefik:
+    image: traefik:v2.9
+    command:
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--log.level=INFO"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-data:/acme.json
+    restart: unless-stopped
+    networks:
+      - traefik-public
+    environment:
+      - TZ=UTC
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # FastAPI application
+  api:
+    image: ${DOCKER_REGISTRY:-ghcr.io}/your-username/car-auction-analyzer:${TAG:-latest}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    command: gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+    volumes:
+      - api-logs:/app/logs
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET_IMAGES=${MINIO_BUCKET_IMAGES}
+      - GOOGLE_CLOUD_VISION_API_KEY=${GOOGLE_CLOUD_VISION_API_KEY}
+      - AZURE_COMPUTER_VISION_KEY=${AZURE_COMPUTER_VISION_KEY}
+      - AZURE_COMPUTER_VISION_ENDPOINT=${AZURE_COMPUTER_VISION_ENDPOINT}
+      - IMAGGA_API_KEY=${IMAGGA_API_KEY}
+      - IMAGGA_API_SECRET=${IMAGGA_API_SECRET}
+      - KBB_API_KEY=${KBB_API_KEY}
+      - EDMUNDS_API_KEY=${EDMUNDS_API_KEY}
+      - MITCHELL_API_KEY=${MITCHELL_API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - traefik-public
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`${API_DOMAIN}`)"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.api.loadbalancer.server.port=8000"
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS"
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolallowheaders=Content-Type,Authorization"
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolalloworiginlist=${ALLOWED_ORIGINS}"
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.api-cors.headers.addvaryheader=true"
+      - "traefik.http.routers.api.middlewares=api-cors"
+
+  # PostgreSQL database
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - /var/backups/car_auction:/backups
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-caa_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-STRONG_PASS}
+      - POSTGRES_DB=${POSTGRES_DB:-car_auction}
+    restart: unless-stopped
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-caa_user} -d ${POSTGRES_DB:-car_auction}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    command: |
+      postgres
+        -c shared_buffers=256MB
+        -c max_connections=200
+        -c effective_cache_size=1GB
+        -c work_mem=16MB
+        -c maintenance_work_mem=64MB
+    # Daily backup script
+    labels:
+      - "backup.enable=true"
+      - "backup.cron=0 2 * * *"
+      - "backup.command=pg_dump -U ${POSTGRES_USER:-caa_user} -d ${POSTGRES_DB:-car_auction} -F c -f /backups/car_auction_$(date +%Y%m%d_%H%M%S).dump"
+
+  # Redis for caching and Celery broker
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-STRONG_REDIS_PASS}
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-STRONG_REDIS_PASS}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MinIO object storage
+  minio:
+    image: minio/minio:RELEASE.2023-09-30T07-16-44Z
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY:-caa_minio}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY:-SUPER_SECRET_MINIO}
+    restart: unless-stopped
+    networks:
+      - traefik-public
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.minio-api.rule=Host(`minio.${API_DOMAIN}`)"
+      - "traefik.http.routers.minio-api.entrypoints=websecure"
+      - "traefik.http.routers.minio-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.minio-api.loadbalancer.server.port=9000"
+      - "traefik.http.routers.minio-console.rule=Host(`minio-console.${API_DOMAIN}`)"
+      - "traefik.http.routers.minio-console.entrypoints=websecure"
+      - "traefik.http.routers.minio-console.tls.certresolver=letsencrypt"
+      - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
+
+  # Celery worker for AI processing
+  worker:
+    image: ${DOCKER_REGISTRY:-ghcr.io}/your-username/car-auction-analyzer:${TAG:-latest}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    command: celery -A app.worker.celery worker --loglevel=info --concurrency=2
+    volumes:
+      - worker-logs:/app/logs
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET_IMAGES=${MINIO_BUCKET_IMAGES}
+      - GOOGLE_CLOUD_VISION_API_KEY=${GOOGLE_CLOUD_VISION_API_KEY}
+      - AZURE_COMPUTER_VISION_KEY=${AZURE_COMPUTER_VISION_KEY}
+      - AZURE_COMPUTER_VISION_ENDPOINT=${AZURE_COMPUTER_VISION_ENDPOINT}
+      - IMAGGA_API_KEY=${IMAGGA_API_KEY}
+      - IMAGGA_API_SECRET=${IMAGGA_API_SECRET}
+      - KBB_API_KEY=${KBB_API_KEY}
+      - EDMUNDS_API_KEY=${EDMUNDS_API_KEY}
+      - MITCHELL_API_KEY=${MITCHELL_API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+      - minio
+    restart: unless-stopped
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Celery beat scheduler for periodic tasks
+  beat:
+    image: ${DOCKER_REGISTRY:-ghcr.io}/your-username/car-auction-analyzer:${TAG:-latest}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    command: celery -A app.worker.celery beat --loglevel=info
+    volumes:
+      - beat-logs:/app/logs
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - ENVIRONMENT=production
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - backend
+
+  # Flower - Celery monitoring tool
+  flower:
+    image: ${DOCKER_REGISTRY:-ghcr.io}/your-username/car-auction-analyzer:${TAG:-latest}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    command: celery -A app.worker.celery flower --port=5555
+    environment:
+      - REDIS_URL=${REDIS_URL}
+    depends_on:
+      - redis
+      - worker
+    restart: unless-stopped
+    networks:
+      - traefik-public
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.flower.rule=Host(`flower.${API_DOMAIN}`)"
+      - "traefik.http.routers.flower.entrypoints=websecure"
+      - "traefik.http.routers.flower.tls.certresolver=letsencrypt"
+      - "traefik.http.services.flower.loadbalancer.server.port=5555"
+      - "traefik.http.routers.flower.middlewares=flower-auth"
+      - "traefik.http.middlewares.flower-auth.basicauth.users=${FLOWER_AUTH:-admin:$$apr1$$LoGKLGzP$$XkTxjdP8c9yRfYJwBJRwG1}"
+
+  # MinIO bucket initialization
+  createbuckets:
+    image: minio/mc:RELEASE.2023-09-30T07-16-44Z
+    depends_on:
+      - minio
+    restart: on-failure
+    entrypoint: >
+      /bin/sh -c "
+      sleep 10;
+      /usr/bin/mc config host add myminio http://minio:9000 ${MINIO_ACCESS_KEY:-caa_minio} ${MINIO_SECRET_KEY:-SUPER_SECRET_MINIO};
+      /usr/bin/mc mb --ignore-existing myminio/${MINIO_BUCKET_IMAGES:-vehicle-images};
+      /usr/bin/mc policy set download myminio/${MINIO_BUCKET_IMAGES:-vehicle-images};
+      exit 0;
+      "
+    networks:
+      - backend
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  minio-data:
+    driver: local
+  traefik-data:
+    driver: local
+  api-logs:
+    driver: local
+  worker-logs:
+    driver: local
+  beat-logs:
+    driver: local
+
+networks:
+  traefik-public:
+    driver: bridge
+  backend:
+    driver: bridge
