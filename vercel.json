@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/api/index.py",
+      "src": "api/index.py",
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb",
@@ -13,7 +13,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "backend/api/index.py"
+      "dest": "api/index.py"
     }
   ],
   "env": {
@@ -23,7 +23,7 @@
     "ALLOWED_ORIGINS": "https://car-auction-analyzer-isaac.netlify.app"
   },
   "functions": {
-    "backend/api/index.py": {
+    "api/index.py": {
       "memory": 1024,
       "maxDuration": 60
     }
