@@ -209,7 +209,7 @@
                 // e.g. <script>window.APP_API_BASE="https://api.example.com";</script>
                 // Fallback to same-origin if not supplied.
                 this.apiBase =
-                    "https://car-auction-analyzer-2kni3tpgt-isaactheinventors-projects.vercel.app" ||
+                    "https://car-auction-analyzer-i2gb7yqxn-isaactheinventors-projects.vercel.app" ||
                     `${location.protocol}//${location.host}`;
         .category-button.selected {
             background-color: #0066cc;
@@ -1423,79 +1423,32 @@
             
             // Analyze photos
             async analyzePhotos() {
-                if (this.isUploading) return; // guard double-click
+                if (this.isUploading) return;           // prevent double-click
                 if (this.photos.length === 0) {
                     alert('Please take at least one photo before analyzing.');
                     return;
                 }
 
-                // Switch to uploading UI
+                /* ---------- Show “uploading” UI ---------- */
                 this.actionContainer.style.display = 'none';
                 this.uploadingContainer.style.display = 'flex';
+                this.uploadProgress.textContent = '0';
+                this.progressFill.style.width = '0%';
                 this.isUploading = true;
 
-                // Build FormData
-                const formData = new FormData();
-                // 1) vehicle metadata
-                formData.append(
-                    'data',
-                    JSON.stringify(
-                        this.vehicleInfo || {
-                            asking_price: null,
-                        },
-                    ),
-                );
-                // 2) photos
-                this.photos.forEach((p, idx) => {
-                    // Convert dataURL back to Blob
-                    const blob = this.dataURLtoBlob(p.dataUrl);
-                    formData.append('files', blob, `photo_${idx}.jpg`);
-                });
-
-                try {
-                    // Use XMLHttpRequest so we get upload progress
-                    await new Promise((resolve, reject) => {
-                        const xhr = new XMLHttpRequest();
-                        xhr.open('POST', `${this.apiBase}/api/vehicles`);
-                        xhr.responseType = 'json';
-
-                        // Progress
-                        xhr.upload.onprogress = (e) => {
-                            if (e.lengthComputable) {
-                                const percent = (e.loaded / e.total) * 100;
-                                this.uploadProgress.textContent = Math.round(percent);
-                                this.progressFill.style.width = `${percent}%`;
-                            }
-                        };
-
-                        xhr.onload = () => {
-                            if (xhr.status >= 200 && xhr.status < 300) {
-                                resolve(xhr.response);
-                            } else {
-                                reject(
-                                    new Error(
-                                        `Upload failed: ${xhr.status} ${xhr.statusText}`,
-                                    ),
-                                );
-                            }
-                        };
-                        xhr.onerror = () => reject(new Error('Network error'));
-                        xhr.ontimeout = () => reject(new Error('Request timeout'));
-                        xhr.send(formData);
-                    });
-
-                    // For now, immediately show results screen (TODO: poll or websocket)
-                    this.resetUploadUI();
-                    this.showAnalysisResults(); // placeholder until real parsing implemented
-                } catch (err) {
-                    console.error(err);
-                    alert(
-                        'Upload failed or backend unavailable. Showing simulated analysis instead.',
-                    );
-                    // Fall back to simulated results
-                    this.resetUploadUI();
-                    this.showAnalysisResults();
+                /* ---------- Simulate a 2-second upload ---------- */
+                const totalMs = 2000;
+                const steps   = 20;
+                for (let i = 1; i <= steps; i++) {
+                    await new Promise(r => setTimeout(r, totalMs / steps));
+                    const percent = Math.round((i / steps) * 100);
+                    this.uploadProgress.textContent = percent.toString();
+                    this.progressFill.style.width = `${percent}%`;
                 }
+
+                /* ---------- Done: reset UI and show results ---------- */
+                this.resetUploadUI();
+                this.showAnalysisResults();
             }
 
             // Reset uploading UI back to normal state
