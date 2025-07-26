@@ -16,7 +16,6 @@
       "dest": "api/index.py"
     },
     {
-      // Catch-all: send every other path to the FastAPI handler
       "src": "/(.*)",
       "dest": "api/index.py"
     }
