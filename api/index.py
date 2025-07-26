@@ -7,7 +7,7 @@ import os
 import random
 import uuid
 from datetime import datetime
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Any, Callable
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -81,6 +81,18 @@ VEHICLE_MODELS = {
 }
 DAMAGE_LOCATIONS = ["Front bumper", "Rear bumper", "Driver door", "Passenger door", "Hood", "Trunk", "Fender", "Roof"]
 DAMAGE_SEVERITIES = ["Minor", "Moderate", "Severe"]
+
+
+# Root route for Vercel
+@app.get("/", tags=["Root"])
+async def root():
+    """Root endpoint to verify API is running"""
+    return {
+        "message": "Car Auction Analyzer API is running",
+        "version": "1.0.0",
+        "docs_url": "/docs",
+        "health_check": "/api/health"
+    }
 
 
 # Routes
@@ -206,3 +218,12 @@ async def global_exception_handler(request: Request, exc: Exception):
             "message": str(exc),
         },
     )
+
+
+# Vercel serverless handler
+def handler(request: Dict[str, Any]) -> Callable:
+    """
+    Vercel serverless function handler
+    This is the entry point for the Vercel serverless function
+    """
+    return app
