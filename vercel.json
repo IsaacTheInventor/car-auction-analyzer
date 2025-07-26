@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/app/main.py",
+      "src": "backend/api/index.py",
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb",
@@ -13,42 +13,19 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "backend/app/main.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "backend/app/main.py"
+      "dest": "backend/api/index.py"
     }
   ],
   "env": {
-    "APP_MODULE": "app.main:app",
     "ENVIRONMENT": "production",
     "LOG_LEVEL": "INFO",
     "MINIO_BUCKET_IMAGES": "vehicle-images",
     "ALLOWED_ORIGINS": "https://car-auction-analyzer-isaac.netlify.app"
   },
-  "build": {
-    "env": {
-      "PIP_EXTRA_INDEX_URL": ""
-    }
-  },
   "functions": {
-    "backend/app/main.py": {
+    "backend/api/index.py": {
       "memory": 1024,
       "maxDuration": 60
     }
-  },
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        { "key": "Access-Control-Allow-Origin", "value": "https://car-auction-analyzer-isaac.netlify.app" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
-        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" }
-      ]
-    }
-  ],
-  "regions": ["iad1"],
-  "public": false
+  }
 }
