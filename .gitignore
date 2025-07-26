@@ -202,3 +202,5 @@ $RECYCLE.BIN/
 # Specific to this project
 backend/app/alembic/versions/*
 !backend/app/alembic/versions/.gitkeep
+
+.vercel
