@@ -1,34 +1,19 @@
-# Car Auction Analyzer - Render.com Deployment Blueprint
+# Minimal Render Blueprint – FastAPI only
+
 services:
-  # Main FastAPI Backend Service
   - type: web
     name: car-auction-api
     env: docker
-    dockerfilePath: ./backend/Dockerfile.prod
-    dockerCommand: gunicorn app.main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    dockerfilePath: ./backend/Dockerfile.render
+    dockerCommand: gunicorn app.main:app \
+      --workers 2 \
+      --worker-class uvicorn.workers.UvicornWorker \
+      --bind 0.0.0.0:$PORT
     repo: https://github.com/IsaacTheInventor/car-auction-analyzer
     branch: master
     healthCheckPath: /api/health
-    numInstances: 1
     autoDeploy: true
     envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: car-auction-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          name: car-auction-redis
-          type: redis
-          property: connectionString
-      - key: MINIO_ENDPOINT
-        value: play.min.io
-      - key: MINIO_ACCESS_KEY
-        generateValue: true
-      - key: MINIO_SECRET_KEY
-        generateValue: true
-      - key: MINIO_BUCKET_IMAGES
-        value: vehicle-images
       - key: SECRET_KEY
         generateValue: true
       - key: ALLOWED_ORIGINS
@@ -38,61 +23,3 @@ services:
       - key: LOG_LEVEL
         value: INFO
 
-  # Celery Worker for AI Analysis
-  - type: worker
-    name: car-auction-worker
-    env: docker
-    dockerfilePath: ./backend/Dockerfile.prod
-    dockerCommand: celery -A app.worker.celery worker --loglevel=info --concurrency=1
-    repo: https://github.com/IsaacTheInventor/car-auction-analyzer
-    branch: master
-    autoDeploy: true
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: car-auction-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          name: car-auction-redis
-          type: redis
-          property: connectionString
-      - key: MINIO_ENDPOINT
-        value: play.min.io
-      - key: MINIO_ACCESS_KEY
-        fromService:
-          name: car-auction-api
-          type: web
-          envVarKey: MINIO_ACCESS_KEY
-      - key: MINIO_SECRET_KEY
-        fromService:
-          name: car-auction-api
-          type: web
-          envVarKey: MINIO_SECRET_KEY
-      - key: MINIO_BUCKET_IMAGES
-        value: vehicle-images
-      - key: SECRET_KEY
-        fromService:
-          name: car-auction-api
-          type: web
-          envVarKey: SECRET_KEY
-      - key: ENVIRONMENT
-        value: production
-      - key: LOG_LEVEL
-        value: INFO
-
-  # Redis for Celery and Caching
-  - type: redis
-    name: car-auction-redis
-    ipAllowList:
-      - source: 0.0.0.0/0
-        description: everywhere
-    plan: free
-
-# PostgreSQL Database
-databases:
-  - name: car-auction-db
-    plan: free
-    ipAllowList:
-      - source: 0.0.0.0/0
-        description: everywhere
