@@ -58,7 +58,10 @@ from app.models.schemas import (
     VehicleIdentification,
     VehicleResponse,
 )
+# Existing (mock) analysis service – kept for backward compatibility
 from app.services.analysis_service import AnalysisService
+# NEW: real AI-powered analysis service
+from app.services.ai_analysis import AIAnalysisService
 from app.services.file_service import FileService
 from app.services.minio_service import MinioService
 from app.services.redis_service import RedisService
@@ -222,17 +225,22 @@ async def get_services(
     redis_service = request.app.state.redis_service if request else None
     
     vehicle_service = VehicleService(db=db, minio_service=minio_service)
+    # Mock / legacy analysis service (kept so existing Celery tasks continue to work)
     analysis_service = AnalysisService(
-        db=db, 
+        db=db,
         minio_service=minio_service,
         redis_service=redis_service,
     )
+
+    # Real AI analysis service – will gradually replace the mock one
+    ai_service = AIAnalysisService()
     
     return {
         "file_service": file_service,
         "minio_service": minio_service,
         "vehicle_service": vehicle_service,
         "analysis_service": analysis_service,
+        "ai_service": ai_service,
         "redis_service": redis_service,
     }
 

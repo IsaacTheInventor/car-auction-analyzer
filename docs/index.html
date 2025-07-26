@@ -202,6 +202,15 @@
             outline: none;
         }
         
+                /* -------------------------------------------------- */
+                /* API CONFIGURATION                                 */
+                /* -------------------------------------------------- */
+                // Backend base URL can be injected into the page before this file
+                // e.g. <script>window.APP_API_BASE="https://api.example.com";</script>
+                // Fallback to same-origin if not supplied.
+                this.apiBase =
+                    window.APP_API_BASE ||
+                    `${location.protocol}//${location.host}`;
         .category-button.selected {
             background-color: #0066cc;
             color: white;
@@ -1413,42 +1422,102 @@
             }
             
             // Analyze photos
-            analyzePhotos() {
-                // Check if we have photos
+            async analyzePhotos() {
+                if (this.isUploading) return; // guard double-click
                 if (this.photos.length === 0) {
                     alert('Please take at least one photo before analyzing.');
                     return;
                 }
-                
-                // Show uploading UI
+
+                // Switch to uploading UI
                 this.actionContainer.style.display = 'none';
                 this.uploadingContainer.style.display = 'flex';
                 this.isUploading = true;
-                
-                // Simulate upload progress
-                let progress = 0;
-                const progressInterval = setInterval(() => {
-                    progress += Math.random() * 5;
-                    if (progress > 100) progress = 100;
-                    
-                    this.uploadProgress.textContent = Math.round(progress);
-                    this.progressFill.style.width = `${progress}%`;
-                    
-                    if (progress >= 100) {
-                        clearInterval(progressInterval);
-                        
-                        // Simulate processing time
-                        setTimeout(() => {
-                            // Reset uploading state
-                            this.actionContainer.style.display = 'flex';
-                            this.uploadingContainer.style.display = 'none';
-                            this.isUploading = false;
-                            
-                            // Show results
-                            this.showAnalysisResults();
-                        }, 1500);
-                    }
-                }, 200);
+
+                // Build FormData
+                const formData = new FormData();
+                // 1) vehicle metadata
+                formData.append(
+                    'data',
+                    JSON.stringify(
+                        this.vehicleInfo || {
+                            asking_price: null,
+                        },
+                    ),
+                );
+                // 2) photos
+                this.photos.forEach((p, idx) => {
+                    // Convert dataURL back to Blob
+                    const blob = this.dataURLtoBlob(p.dataUrl);
+                    formData.append('files', blob, `photo_${idx}.jpg`);
+                });
+
+                try {
+                    // Use XMLHttpRequest so we get upload progress
+                    await new Promise((resolve, reject) => {
+                        const xhr = new XMLHttpRequest();
+                        xhr.open('POST', `${this.apiBase}/api/vehicles`);
+                        xhr.responseType = 'json';
+
+                        // Progress
+                        xhr.upload.onprogress = (e) => {
+                            if (e.lengthComputable) {
+                                const percent = (e.loaded / e.total) * 100;
+                                this.uploadProgress.textContent = Math.round(percent);
+                                this.progressFill.style.width = `${percent}%`;
+                            }
+                        };
+
+                        xhr.onload = () => {
+                            if (xhr.status >= 200 && xhr.status < 300) {
+                                resolve(xhr.response);
+                            } else {
+                                reject(
+                                    new Error(
+                                        `Upload failed: ${xhr.status} ${xhr.statusText}`,
+                                    ),
+                                );
+                            }
+                        };
+                        xhr.onerror = () => reject(new Error('Network error'));
+                        xhr.ontimeout = () => reject(new Error('Request timeout'));
+                        xhr.send(formData);
+                    });
+
+                    // For now, immediately show results screen (TODO: poll or websocket)
+                    this.resetUploadUI();
+                    this.showAnalysisResults(); // placeholder until real parsing implemented
+                } catch (err) {
+                    console.error(err);
+                    alert(
+                        'Upload failed or backend unavailable. Showing simulated analysis instead.',
+                    );
+                    // Fall back to simulated results
+                    this.resetUploadUI();
+                    this.showAnalysisResults();
+                }
+            }
+
+            // Reset uploading UI back to normal state
+            resetUploadUI() {
+                this.actionContainer.style.display = 'flex';
+                this.uploadingContainer.style.display = 'none';
+                this.uploadProgress.textContent = '0';
+                this.progressFill.style.width = '0%';
+                this.isUploading = false;
+            }
+
+            // Utility: convert dataURL to Blob
+            dataURLtoBlob(dataurl) {
+                const arr = dataurl.split(',');
+                const mime = arr[0].match(/:(.*?);/)[1];
+                const bstr = atob(arr[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while (n--) {
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                return new Blob([u8arr], { type: mime });
             }
             
             // Show analysis results
